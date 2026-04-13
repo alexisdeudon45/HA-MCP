@@ -842,7 +842,7 @@ def analyze():
         mcp_tools = _build_active_mcp_tools(api_keys)
         orchestrator.discover_mcps(mcp_tools)
 
-        engine = PipelineEngine(orchestrator, STORAGE_PATH)
+        engine = PipelineEngine(orchestrator, STORAGE_PATH, api_keys=api_keys)
         results = engine.run(str(offer_path), str(cv_path))
 
         gen_phase = results.get("phases", {}).get("generation", {})
