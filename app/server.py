@@ -154,6 +154,7 @@ def analyze():
             "events": results.get("events", []),
             "resources": results.get("resources", []),
             "mcp_config": results.get("mcp_config", {}),
+            "grand_meta": results.get("grand_meta", {}),
             "recommendation": gen.get("recommendation", "N/A"),
             "overall_score": gen.get("overall_score", 0),
             "artifacts_count": gen.get("artifacts_count", 0),

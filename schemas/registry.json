@@ -65,6 +65,12 @@
       "version": "1.0.0",
       "description": "Web-sourced data (pages, search, APIs)"
     },
+    "grand_meta": {
+      "id": "urn:mcp-poste:grand_meta:schema:v1",
+      "path": "grand_meta/schema.json",
+      "version": "1.0.0",
+      "description": "Grand meta-schema — unified 7-category analysis output"
+    },
     "analysis": {
       "id": "urn:mcp-poste:analysis:schema:v1",
       "path": "analysis/schema.json",

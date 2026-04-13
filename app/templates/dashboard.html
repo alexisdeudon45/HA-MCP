@@ -108,6 +108,33 @@
     svg .link.validates { stroke: var(--green); }
     svg .link.extends { stroke: var(--purple); }
 
+    /* Radar chart */
+    .radar-container { display: flex; justify-content: center; }
+    .gm-category { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+    .gm-category h3 { font-size: 12px; color: var(--blue); text-transform: uppercase; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .gm-category h3 .conf { font-size: 10px; color: var(--text3); font-weight: 400; }
+    .gm-field { display: flex; justify-content: space-between; padding: 3px 0; font-size: 11px; border-bottom: 1px solid var(--bg3); }
+    .gm-field:last-child { border-bottom: none; }
+    .gm-field .label { color: var(--text2); }
+    .gm-field .value { color: var(--text); font-weight: 600; max-width: 60%; text-align: right; }
+    .gm-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+    .gm-tag { background: var(--bg3); padding: 2px 6px; border-radius: 3px; font-size: 10px; color: var(--text2); }
+    .gm-tag.red { background: var(--red-bg); color: var(--red); }
+    .gm-tag.green { background: var(--green-bg); color: var(--green); }
+    .gm-tag.orange { background: var(--orange-bg); color: var(--orange); }
+    .gm-score-bar { height: 6px; border-radius: 3px; background: var(--bg3); margin-top: 4px; }
+    .gm-score-fill { height: 100%; border-radius: 3px; }
+    .decision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .decision-item { background: var(--bg); border-radius: 6px; padding: 10px; border-left: 3px solid; }
+    .decision-item.go { border-left-color: var(--green); }
+    .decision-item.caution { border-left-color: var(--orange); }
+    .decision-item.no_go { border-left-color: var(--red); }
+    .decision-item .factor { font-weight: 700; font-size: 12px; }
+    .decision-item .rationale { font-size: 10px; color: var(--text2); margin-top: 2px; }
+    .question-list { list-style: none; }
+    .question-list li { padding: 8px; background: var(--bg); border-radius: 6px; margin-bottom: 6px; font-size: 12px; }
+    .question-list li .purpose { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
     /* Coverage */
     .cov-bar { display: flex; gap: 4px; flex-wrap: wrap; }
     .cov-item { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; }
@@ -137,6 +164,7 @@
   <div class="nav-tab" data-page="resources">Resources</div>
   <div class="nav-tab" data-page="keys">API Keys</div>
   <div class="nav-tab" data-page="analyze">Analyze</div>
+  <div class="nav-tab" data-page="report">Report</div>
   <div class="nav-tab" data-page="history">History</div>
   <div class="nav-right"><div class="live-dot"></div><span style="font-size:11px;color:var(--text3)">LIVE</span></div>
 </div>
@@ -246,6 +274,85 @@
   </div>
 </div>
 
+<!-- ═══ REPORT (Grand Meta) ═══ -->
+<div id="page-report" class="page">
+  <div id="reportEmpty" class="card"><p style="color:var(--text3);text-align:center;padding:40px;">Lancez une analyse pour voir le rapport Grand Meta.</p></div>
+
+  <!-- Radar + Score -->
+  <div id="reportContent" style="display:none;">
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="card">
+        <h2>Radar de compatibilite</h2>
+        <div class="radar-container" id="radarChart" style="height:320px;"></div>
+      </div>
+      <div class="card">
+        <h2>Verdict</h2>
+        <div style="text-align:center;padding:20px 0;">
+          <div id="rptScore" style="font-size:48px;font-weight:900;color:var(--blue);">-</div>
+          <div id="rptRecommendation" style="font-size:16px;font-weight:700;margin-top:4px;">-</div>
+        </div>
+        <div class="grid-3" style="margin-top:12px;">
+          <div style="text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--green);" id="rptStrengths">0</div><div style="font-size:10px;color:var(--text3);">FORCES</div></div>
+          <div style="text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--red);" id="rptRisks">0</div><div style="font-size:10px;color:var(--text3);">RISQUES</div></div>
+          <div style="text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--orange);" id="rptUnknowns">0</div><div style="font-size:10px;color:var(--text3);">INCONNUS</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Decision Factors -->
+    <div class="card" style="margin-bottom:16px;">
+      <h2>Facteurs de decision</h2>
+      <div class="decision-grid" id="decisionGrid"></div>
+    </div>
+
+    <!-- 7 Categories -->
+    <div class="grid-2">
+      <!-- Entity -->
+      <div class="card">
+        <h2>1. Entite — L'entreprise</h2>
+        <div id="gmEntity"></div>
+      </div>
+      <!-- Organigramme -->
+      <div class="card">
+        <h2>2. Organigramme</h2>
+        <div id="gmOrganigramme"></div>
+      </div>
+      <!-- Real expectations -->
+      <div class="card">
+        <h2>3. Attentes reelles</h2>
+        <div id="gmExpectations"></div>
+      </div>
+      <!-- Job position -->
+      <div class="card">
+        <h2>4. Le Poste</h2>
+        <div id="gmJobPosition"></div>
+      </div>
+      <!-- Candidate -->
+      <div class="card">
+        <h2>5. Profil candidat</h2>
+        <div id="gmCandidate"></div>
+      </div>
+      <!-- Historical -->
+      <div class="card">
+        <h2>6. Historique</h2>
+        <div id="gmHistorical"></div>
+      </div>
+    </div>
+
+    <!-- Interview questions -->
+    <div class="card" style="margin-top:16px;">
+      <h2>Questions d'entretien suggerees</h2>
+      <ul class="question-list" id="questionList"></ul>
+    </div>
+
+    <!-- Full JSON -->
+    <div class="card" style="margin-top:16px;">
+      <h2>Grand Meta Schema — JSON complet</h2>
+      <pre class="json" id="grandMetaJson"></pre>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ HISTORY ═══ -->
 <div id="page-history" class="page">
   <div class="card"><h2>Analysis History</h2><div id="sessionsContainer"></div></div>
@@ -269,7 +376,7 @@ const STEPS = {
   stage_2: [
     {id:'2.1',name:'resource_consult'},{id:'2.2',name:'analysis_mcp_select'},
     {id:'2.3',name:'analysis_mcp_test'},{id:'2.4',name:'analysis_execute'},
-    {id:'2.5',name:'combine'},{id:'2.6',name:'generate'}
+    {id:'2.5',name:'combine'},{id:'2.55',name:'grand_meta'},{id:'2.6',name:'generate'}
   ]
 };
 
@@ -339,6 +446,7 @@ function startSSE(sessionId) {
       sseSource.close();
       currentResults = data.results;
       renderResourceGraph();
+      if (data.results.grand_meta) renderReport(data.results.grand_meta);
     }
   };
 }
@@ -540,6 +648,7 @@ document.getElementById('analyzeForm').addEventListener('submit', async (e) => {
       // Update stats
       document.getElementById('s-resources').textContent = (data.resources||[]).length;
       renderResourceGraph();
+      if (data.grand_meta) renderReport(data.grand_meta);
     }
   } catch(err) {
     status.style.background='var(--red-bg)'; status.textContent='Error: '+err.message;
@@ -566,6 +675,204 @@ async function loadSession(sid) {
   document.getElementById('sessionDetail').style.display='block';
   currentResults = data;
   renderResourceGraph();
+  if (data.grand_meta) renderReport(data.grand_meta);
+}
+
+// ═══ REPORT / GRAND META RENDERING ═══
+
+function renderReport(gm) {
+  if (!gm || Object.keys(gm).length === 0) return;
+  document.getElementById('reportEmpty').style.display = 'none';
+  document.getElementById('reportContent').style.display = 'block';
+
+  const syn = gm.match_synthesis || {};
+  const scores = syn.category_scores || {};
+
+  // Verdict
+  const sc = syn.overall_score || 0;
+  document.getElementById('rptScore').textContent = (sc * 100).toFixed(0) + '%';
+  document.getElementById('rptScore').style.color = sc >= 0.7 ? 'var(--green)' : sc >= 0.4 ? 'var(--orange)' : 'var(--red)';
+  document.getElementById('rptRecommendation').textContent = (syn.recommendation || '-').replace(/_/g, ' ').toUpperCase();
+  document.getElementById('rptStrengths').textContent = (syn.top_strengths || []).length;
+  document.getElementById('rptRisks').textContent = (syn.top_risks || []).length;
+  document.getElementById('rptUnknowns').textContent = (syn.top_unknowns || []).length;
+
+  // Radar chart
+  renderRadar(scores);
+
+  // Decision factors
+  const dg = document.getElementById('decisionGrid');
+  dg.innerHTML = (syn.decision_factors || []).map(f =>
+    '<div class="decision-item '+(f.verdict||'caution')+'"><div class="factor">'+f.factor+'</div><div class="rationale">'+
+    '<span class="badge badge-'+(f.verdict==='go'?'green':f.verdict==='no_go'?'red':'orange')+'">'+f.verdict+'</span> '+
+    (f.rationale||'')+'</div></div>'
+  ).join('') || '<p style="color:var(--text3)">Aucun facteur.</p>';
+
+  // Categories
+  renderGMCategory('gmEntity', gm.entity || {}, ['company', 'culture', 'financial_health', 'reputation', 'technology_stack']);
+  renderGMCategory('gmOrganigramme', gm.organigramme || {}, ['department', 'team', 'team_size', 'reporting_to', 'requestor', 'position_in_hierarchy']);
+  renderGMExpectations('gmExpectations', gm.real_expectations || {});
+  renderGMCategory('gmJobPosition', gm.job_position || {}, ['title', 'seniority', 'contract', 'location', 'compensation']);
+  renderGMCandidate('gmCandidate', gm.candidate_profile || {});
+  renderGMCategory('gmHistorical', gm.historical || {}, ['job_posting', 'recruitment_history', 'market_context', 'company_hiring_pattern']);
+
+  // Interview questions
+  const ql = document.getElementById('questionList');
+  ql.innerHTML = (syn.interview_questions || []).map(q =>
+    '<li><strong>'+q.question+'</strong><div class="purpose">Objectif: '+
+    (q.purpose||'')+' | Cible: '+(q.targets_category||'')+'</div></li>'
+  ).join('') || '<li style="color:var(--text3)">Aucune question.</li>';
+
+  // Full JSON
+  document.getElementById('grandMetaJson').textContent = JSON.stringify(gm, null, 2);
+}
+
+function renderRadar(scores) {
+  const container = document.getElementById('radarChart');
+  container.innerHTML = '';
+  const entries = Object.entries(scores);
+  if (entries.length === 0) { container.innerHTML = '<p style="color:var(--text3);text-align:center;padding:40px;">Pas de scores.</p>'; return; }
+
+  const w = 300, h = 300, cx = w/2, cy = h/2, r = 120;
+  const svg = d3.select(container).append('svg').attr('viewBox', [0,0,w,h]);
+  const n = entries.length;
+  const angle = (i) => (Math.PI*2*i/n) - Math.PI/2;
+
+  // Grid
+  [0.25,0.5,0.75,1].forEach(level => {
+    const pts = entries.map((_,i) => {
+      const a = angle(i);
+      return [cx + Math.cos(a)*r*level, cy + Math.sin(a)*r*level];
+    });
+    svg.append('polygon').attr('points', pts.map(p=>p.join(',')).join(' '))
+      .attr('fill','none').attr('stroke','#30363d').attr('stroke-width', level===1?1.5:0.5);
+  });
+
+  // Axes + labels
+  entries.forEach(([name,val],i) => {
+    const a = angle(i);
+    const x2 = cx+Math.cos(a)*r, y2 = cy+Math.sin(a)*r;
+    svg.append('line').attr('x1',cx).attr('y1',cy).attr('x2',x2).attr('y2',y2).attr('stroke','#30363d').attr('stroke-width',0.5);
+    const lx = cx+Math.cos(a)*(r+18), ly = cy+Math.sin(a)*(r+18);
+    svg.append('text').attr('x',lx).attr('y',ly).attr('text-anchor','middle').attr('dominant-baseline','middle')
+      .attr('font-size','8px').attr('fill','#8b949e').text(name.replace(/_/g,' '));
+  });
+
+  // Data polygon
+  const dataPts = entries.map(([_,val],i) => {
+    const a = angle(i);
+    return [cx+Math.cos(a)*r*(val||0), cy+Math.sin(a)*r*(val||0)];
+  });
+  svg.append('polygon').attr('points', dataPts.map(p=>p.join(',')).join(' '))
+    .attr('fill','rgba(88,166,255,0.2)').attr('stroke','#58a6ff').attr('stroke-width',2);
+
+  // Data dots
+  dataPts.forEach(([x,y],i) => {
+    svg.append('circle').attr('cx',x).attr('cy',y).attr('r',4).attr('fill','#58a6ff');
+    svg.append('text').attr('x',x).attr('y',y-8).attr('text-anchor','middle').attr('font-size','9px').attr('fill','#58a6ff').attr('font-weight','bold')
+      .text(Math.round((entries[i][1]||0)*100)+'%');
+  });
+}
+
+function renderGMCategory(containerId, data, fields) {
+  const c = document.getElementById(containerId);
+  let html = '';
+  const conf = data.confidence;
+  if (conf !== undefined) html += '<div style="font-size:10px;color:var(--text3);margin-bottom:6px;">Confidence: '+(conf*100).toFixed(0)+'%</div>';
+
+  fields.forEach(f => {
+    const val = data[f];
+    if (val === undefined || val === null) return;
+    if (typeof val === 'object' && !Array.isArray(val)) {
+      html += '<div class="gm-category"><h3>'+f.replace(/_/g,' ')+'</h3>';
+      Object.entries(val).forEach(([k,v]) => {
+        if (v === null || v === undefined) return;
+        const display = Array.isArray(v) ? v.join(', ') : String(v);
+        if (display) html += '<div class="gm-field"><span class="label">'+k.replace(/_/g,' ')+'</span><span class="value">'+display+'</span></div>';
+      });
+      html += '</div>';
+    } else {
+      const display = Array.isArray(val) ? val.join(', ') : String(val);
+      html += '<div class="gm-field"><span class="label">'+f.replace(/_/g,' ')+'</span><span class="value">'+display+'</span></div>';
+    }
+  });
+  c.innerHTML = html || '<p style="color:var(--text3)">Pas de donnees.</p>';
+}
+
+function renderGMExpectations(containerId, data) {
+  const c = document.getElementById(containerId);
+  let html = '';
+  if (data.hiring_motivation) html += '<div class="gm-field"><span class="label">Motivation</span><span class="value">'+data.hiring_motivation.replace(/_/g,' ')+'</span></div>';
+  if (data.urgency) html += '<div class="gm-field"><span class="label">Urgence</span><span class="value">'+data.urgency.replace(/_/g,' ')+'</span></div>';
+
+  if (data.hidden_requirements && data.hidden_requirements.length) {
+    html += '<div class="gm-category"><h3>Exigences cachees</h3>';
+    data.hidden_requirements.forEach(r => {
+      html += '<div class="gm-field"><span class="label">'+r.requirement+'</span><span class="value"><span class="badge badge-'+(r.importance==='critical'?'red':r.importance==='important'?'orange':'green')+'">'+r.importance+'</span></span></div>';
+    });
+    html += '</div>';
+  }
+
+  if (data.real_challenges && data.real_challenges.length) {
+    html += '<div class="gm-category"><h3>Vrais defis</h3><div class="gm-tags">';
+    data.real_challenges.forEach(ch => {
+      html += '<span class="gm-tag '+(ch.severity==='high'?'red':ch.severity==='medium'?'orange':'green')+'">'+ch.challenge+'</span>';
+    });
+    html += '</div></div>';
+  }
+
+  if (data.red_flags && data.red_flags.length) {
+    html += '<div class="gm-category"><h3>Red Flags</h3><div class="gm-tags">';
+    data.red_flags.forEach(f => { html += '<span class="gm-tag red">'+f.flag+'</span>'; });
+    html += '</div></div>';
+  }
+
+  if (data.growth_potential) {
+    html += '<div class="gm-category"><h3>Potentiel evolution</h3>';
+    Object.entries(data.growth_potential).forEach(([k,v]) => {
+      if (v) html += '<div class="gm-field"><span class="label">'+k.replace(/_/g,' ')+'</span><span class="value">'+(Array.isArray(v)?v.join(', '):v)+'</span></div>';
+    });
+    html += '</div>';
+  }
+  c.innerHTML = html || '<p style="color:var(--text3)">Pas de donnees.</p>';
+}
+
+function renderGMCandidate(containerId, data) {
+  const c = document.getElementById(containerId);
+  let html = '';
+
+  if (data.identity) {
+    html += '<div class="gm-category"><h3>Identite</h3>';
+    Object.entries(data.identity).forEach(([k,v]) => {
+      if (v) html += '<div class="gm-field"><span class="label">'+k.replace(/_/g,' ')+'</span><span class="value">'+v+'</span></div>';
+    });
+    html += '</div>';
+  }
+
+  if (data.professional_summary) {
+    html += '<div style="font-size:11px;color:var(--text2);padding:8px;background:var(--bg);border-radius:6px;margin-bottom:8px;">'+data.professional_summary+'</div>';
+  }
+
+  if (data.career_trajectory) {
+    const ct = data.career_trajectory;
+    html += '<div class="gm-category"><h3>Trajectoire</h3>';
+    if (ct.direction) html += '<div class="gm-field"><span class="label">Direction</span><span class="value">'+ct.direction+'</span></div>';
+    if (ct.velocity) html += '<div class="gm-field"><span class="label">Velocity</span><span class="value">'+ct.velocity+'</span></div>';
+    if (ct.total_experience_years) html += '<div class="gm-field"><span class="label">Exp. totale</span><span class="value">'+ct.total_experience_years+' ans</span></div>';
+    if (ct.relevant_experience_years) html += '<div class="gm-field"><span class="label">Exp. pertinente</span><span class="value">'+ct.relevant_experience_years+' ans</span></div>';
+    if (ct.companies_count) html += '<div class="gm-field"><span class="label">Entreprises</span><span class="value">'+ct.companies_count+'</span></div>';
+    html += '</div>';
+  }
+
+  if (data.skills_inventory && data.skills_inventory.length) {
+    html += '<div class="gm-category"><h3>Top Skills</h3><div class="gm-tags">';
+    data.skills_inventory.slice(0,15).forEach(s => {
+      const cls = s.evidence_strength==='strong'?'green':s.evidence_strength==='moderate'?'':'orange';
+      html += '<span class="gm-tag '+cls+'">'+s.skill+(s.level?' ('+s.level+')':'')+'</span>';
+    });
+    html += '</div></div>';
+  }
+  c.innerHTML = html || '<p style="color:var(--text3)">Pas de donnees.</p>';
 }
 
 // ── Init ──

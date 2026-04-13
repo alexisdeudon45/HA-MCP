@@ -74,6 +74,7 @@ class PipelineEngine:
             ("2.3", "analysis_mcp_test", self._step_analysis_mcp_test),
             ("2.4", "analysis_execute", self._step_analysis_execute),
             ("2.5", "combine", self._step_combine),
+            ("2.55", "grand_meta", self._step_grand_meta),
             ("2.6", "generate", self._step_generate),
         ]
 
@@ -118,6 +119,7 @@ class PipelineEngine:
         results["events"] = self._event_stream
         results["mcp_config"] = self._mcp_manager.get_config()
         results["resources"] = self._mcp_manager.get_resources()
+        results["grand_meta"] = self._state.get("grand_meta", {})
         results["trace"] = self._orchestrator.get_trace()
 
         self._state.store_output(f"result_{session_id}", results)
@@ -531,6 +533,55 @@ class PipelineEngine:
 
         return {"status": "completed", "resources_used": len(resources)}
 
+    def _step_grand_meta(self) -> dict[str, Any]:
+        """2.55 — Build the Grand Meta Schema (7 categories)."""
+        from .grand_meta_builder import build_grand_meta
+
+        job_data = self._state.get("job_data", {})
+        candidate_data = self._state.get("candidate_data", {})
+        analysis_data = self._state.get("analysis_data", {})
+        resources = self._state.get("enriched_resources", [])
+        company_info = self._state.get("company_info", {})
+
+        logger.info("Building Grand Meta Schema (7 categories via Claude)...")
+        grand_meta_data = build_grand_meta(
+            self._api_keys, job_data, candidate_data, analysis_data, resources, company_info
+        )
+
+        grand_meta_obj = {
+            "meta": self.create_meta("grand_meta", [{
+                "mcp_id": "anthropic_claude",
+                "capability": "grand_meta_building",
+                "invoked_at": datetime.now(timezone.utc).isoformat(),
+                "status": "success",
+            }]),
+            "grand_meta": grand_meta_data,
+        }
+        grand_meta_obj["meta"]["confidence"] = 0.85
+        grand_meta_obj["meta"]["validation_status"] = "valid"
+
+        self._state.set("grand_meta", grand_meta_data)
+        self._state.set("grand_meta_obj", grand_meta_obj)
+
+        # Save grand meta separately
+        gm_dir = self._storage_dir / "outputs"
+        gm_dir.mkdir(parents=True, exist_ok=True)
+        session_id = self._state.get("session_id", "")
+        with open(gm_dir / f"grand_meta_{session_id}.json", "w", encoding="utf-8") as f:
+            json.dump(grand_meta_obj, f, indent=2, ensure_ascii=False)
+
+        synthesis = grand_meta_data.get("match_synthesis", {})
+        return {
+            "status": "completed",
+            "categories_built": list(grand_meta_data.keys()),
+            "overall_score": synthesis.get("overall_score", 0),
+            "recommendation": synthesis.get("recommendation", "?"),
+            "category_scores": synthesis.get("category_scores", {}),
+            "top_strengths_count": len(synthesis.get("top_strengths", [])),
+            "top_risks_count": len(synthesis.get("top_risks", [])),
+            "interview_questions_count": len(synthesis.get("interview_questions", [])),
+        }
+
     def _step_generate(self) -> dict[str, Any]:
         """2.6 — Generate final report."""
         job_data = self._state.get("job_data", {})
@@ -538,6 +589,7 @@ class PipelineEngine:
         analysis_data = self._state.get("analysis_data", {})
         company_info = self._state.get("company_info", {})
         resources = self._state.get("enriched_resources", [])
+        grand_meta = self._state.get("grand_meta", {})
 
         report_md = generate_report(
             self._api_keys, job_data, candidate_data, analysis_data, company_info
@@ -567,15 +619,23 @@ class PipelineEngine:
                         "content": json.dumps({"job": job_data, "candidate": candidate_data, "analysis": analysis_data}, ensure_ascii=False),
                         "generated_at": now,
                     },
+                    {
+                        "artifact_id": str(uuid.uuid4()),
+                        "type": "custom",
+                        "format": "json",
+                        "title": "Grand Meta Schema — Analyse 7 categories",
+                        "content": json.dumps(grand_meta, ensure_ascii=False),
+                        "generated_at": now,
+                    },
                 ],
                 "summary": {
-                    "candidate_name": candidate_data.get("identity", {}).get("name", "Inconnu"),
-                    "job_title": job_data.get("title", "Inconnu"),
-                    "overall_score": analysis_data.get("overall_score", 0.0),
-                    "recommendation": analysis_data.get("recommendation", "partial_match"),
-                    "key_strengths": [s.get("description", "") for s in analysis_data.get("signals", []) if s.get("type") == "strength"][:5],
-                    "key_gaps": [g.get("requirement", "") for g in analysis_data.get("gaps", []) if g.get("severity") in ("critical", "significant")][:5],
-                    "key_uncertainties": [u.get("area", "") for u in analysis_data.get("uncertainties", [])][:5],
+                    "candidate_name": grand_meta.get("candidate_profile", {}).get("identity", {}).get("name", "") or candidate_data.get("identity", {}).get("name", "Inconnu"),
+                    "job_title": grand_meta.get("job_position", {}).get("title", "") or job_data.get("title", "Inconnu"),
+                    "overall_score": grand_meta.get("match_synthesis", {}).get("overall_score", analysis_data.get("overall_score", 0.0)),
+                    "recommendation": grand_meta.get("match_synthesis", {}).get("recommendation", analysis_data.get("recommendation", "partial_match")),
+                    "key_strengths": grand_meta.get("match_synthesis", {}).get("top_strengths", [])[:5] or [s.get("description", "") for s in analysis_data.get("signals", []) if s.get("type") == "strength"][:5],
+                    "key_gaps": grand_meta.get("match_synthesis", {}).get("top_risks", [])[:5] or [g.get("requirement", "") for g in analysis_data.get("gaps", []) if g.get("severity") in ("critical", "significant")][:5],
+                    "key_uncertainties": grand_meta.get("match_synthesis", {}).get("top_unknowns", [])[:5] or [u.get("area", "") for u in analysis_data.get("uncertainties", [])][:5],
                     "next_steps": _derive_next_steps(analysis_data),
                 },
             },

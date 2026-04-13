@@ -1,0 +1,568 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mcp-poste:grand_meta:schema:v1",
+  "title": "Grand Meta Schema",
+  "description": "Schema unificateur complet — consolide toutes les dimensions d'analyse d'une candidature en 7 categories majeures. C'est la representation finale exhaustive de tout ce que le systeme a appris.",
+  "type": "object",
+  "properties": {
+    "meta": { "$ref": "urn:mcp-poste:meta:meta-schema:v1#/properties/meta" },
+    "grand_meta": {
+      "type": "object",
+      "properties": {
+
+        "entity": {
+          "type": "object",
+          "title": "Entite — L'organisation qui recrute",
+          "description": "Tout ce qu'on sait sur l'entreprise/entite derriere le poste",
+          "properties": {
+            "company": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "legal_name": { "type": "string" },
+                "sector": { "type": "string" },
+                "sub_sector": { "type": "string" },
+                "size": { "type": "string", "enum": ["startup", "pme", "eti", "grand_groupe", "unknown"] },
+                "employee_count": { "type": "integer" },
+                "revenue": { "type": "string" },
+                "founded_year": { "type": "integer" },
+                "headquarters": { "type": "string" },
+                "offices": { "type": "array", "items": { "type": "string" } },
+                "website": { "type": "string" },
+                "linkedin": { "type": "string" },
+                "stock_ticker": { "type": "string" }
+              }
+            },
+            "culture": {
+              "type": "object",
+              "properties": {
+                "values": { "type": "array", "items": { "type": "string" } },
+                "management_style": { "type": "string" },
+                "work_life_balance": { "type": "string", "enum": ["excellent", "good", "average", "poor", "unknown"] },
+                "innovation_level": { "type": "string", "enum": ["cutting_edge", "progressive", "traditional", "conservative", "unknown"] },
+                "diversity_inclusion": { "type": "string" },
+                "glassdoor_rating": { "type": "number", "minimum": 0, "maximum": 5 },
+                "employee_sentiment": { "type": "string", "enum": ["very_positive", "positive", "mixed", "negative", "unknown"] },
+                "turnover_rate": { "type": "string" }
+              }
+            },
+            "financial_health": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "string", "enum": ["growing", "stable", "declining", "restructuring", "startup_phase", "unknown"] },
+                "recent_funding": { "type": "string" },
+                "profitability": { "type": "string" },
+                "market_position": { "type": "string" }
+              }
+            },
+            "reputation": {
+              "type": "object",
+              "properties": {
+                "brand_strength": { "type": "string", "enum": ["leader", "well_known", "emerging", "niche", "unknown"] },
+                "employer_brand": { "type": "string", "enum": ["top_employer", "attractive", "average", "weak", "unknown"] },
+                "recent_news": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "headline": { "type": "string" },
+                      "sentiment": { "type": "string", "enum": ["positive", "negative", "neutral"] },
+                      "date": { "type": "string" },
+                      "source": { "type": "string" }
+                    }
+                  }
+                },
+                "controversies": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "technology_stack": {
+              "type": "object",
+              "properties": {
+                "main_technologies": { "type": "array", "items": { "type": "string" } },
+                "cloud_provider": { "type": "string" },
+                "methodology": { "type": "string" },
+                "tech_maturity": { "type": "string", "enum": ["cutting_edge", "modern", "legacy_modernizing", "legacy", "unknown"] }
+              }
+            },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+            "sources": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["company"]
+        },
+
+        "organigramme": {
+          "type": "object",
+          "title": "Organigramme — Structure hierarchique du poste",
+          "description": "Ou se situe le poste dans l'organisation, qui manage, qui a demande le poste",
+          "properties": {
+            "department": { "type": "string" },
+            "team": { "type": "string" },
+            "team_size": { "type": "integer" },
+            "reporting_to": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "name": { "type": "string" },
+                "seniority": { "type": "string" },
+                "linkedin": { "type": "string" }
+              }
+            },
+            "direct_reports": { "type": "integer" },
+            "peers": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "role": { "type": "string" },
+                  "count": { "type": "integer" }
+                }
+              }
+            },
+            "requestor": {
+              "type": "object",
+              "description": "La personne qui a demande l'ouverture du poste",
+              "properties": {
+                "name": { "type": "string" },
+                "title": { "type": "string" },
+                "department": { "type": "string" },
+                "relation_to_role": { "type": "string", "enum": ["direct_manager", "skip_level", "hr", "cto", "ceo", "team_lead", "unknown"] },
+                "hiring_experience": { "type": "string", "enum": ["experienced", "occasional", "first_time", "unknown"] }
+              }
+            },
+            "position_in_hierarchy": {
+              "type": "string",
+              "enum": ["c_level", "vp", "director", "senior_manager", "manager", "lead", "senior_ic", "mid_ic", "junior_ic", "intern", "unknown"]
+            },
+            "collaboration_scope": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "team": { "type": "string" },
+                  "interaction_type": { "type": "string", "enum": ["daily", "weekly", "monthly", "project_based", "rare"] }
+                }
+              }
+            },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+            "sources": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+
+        "real_expectations": {
+          "type": "object",
+          "title": "Attentes reelles — Ce qui se cache derriere l'offre",
+          "description": "Analyse des motivations profondes derriere l'ouverture du poste",
+          "properties": {
+            "hiring_motivation": {
+              "type": "string",
+              "enum": ["growth", "replacement", "restructuring", "new_project", "strategic_shift", "compliance", "cost_optimization", "talent_upgrade", "unknown"],
+              "description": "Pourquoi ce poste existe"
+            },
+            "urgency": {
+              "type": "string",
+              "enum": ["critical_asap", "high_1month", "normal_3months", "low_no_rush", "unknown"]
+            },
+            "predecessor": {
+              "type": "object",
+              "description": "Informations sur le predecesseur eventuel",
+              "properties": {
+                "existed": { "type": "boolean" },
+                "departure_reason": { "type": "string", "enum": ["promotion", "resignation", "termination", "retirement", "internal_transfer", "new_role", "unknown"] },
+                "tenure_months": { "type": "integer" },
+                "performance": { "type": "string", "enum": ["excellent", "good", "average", "underperformed", "unknown"] }
+              }
+            },
+            "hidden_requirements": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "requirement": { "type": "string" },
+                  "evidence": { "type": "string" },
+                  "importance": { "type": "string", "enum": ["critical", "important", "nice_to_have"] },
+                  "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+                }
+              },
+              "description": "Exigences non ecrites mais reelles (deduites du contexte)"
+            },
+            "real_challenges": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "challenge": { "type": "string" },
+                  "severity": { "type": "string", "enum": ["high", "medium", "low"] },
+                  "visible_in_offer": { "type": "boolean" }
+                }
+              },
+              "description": "Les vrais defis du poste (vs ce qui est ecrit)"
+            },
+            "success_criteria": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "criterion": { "type": "string" },
+                  "timeframe": { "type": "string" },
+                  "measurable": { "type": "boolean" }
+                }
+              },
+              "description": "Comment le succes sera mesure (30/60/90 jours)"
+            },
+            "growth_potential": {
+              "type": "object",
+              "properties": {
+                "career_path": { "type": "string" },
+                "promotion_timeline": { "type": "string" },
+                "skill_development": { "type": "array", "items": { "type": "string" } },
+                "ceiling": { "type": "string" }
+              }
+            },
+            "red_flags": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "flag": { "type": "string" },
+                  "evidence": { "type": "string" },
+                  "severity": { "type": "string", "enum": ["high", "medium", "low"] }
+                }
+              },
+              "description": "Signaux d'alerte detectes"
+            },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+            "sources": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+
+        "job_position": {
+          "type": "object",
+          "title": "Le Poste — Analyse detaillee",
+          "description": "Le poste lui-meme dans ses moindres details",
+          "properties": {
+            "title": { "type": "string" },
+            "title_normalized": { "type": "string", "description": "Titre normalise (ex: Senior Backend Developer)" },
+            "seniority": { "type": "string", "enum": ["intern", "junior", "mid", "senior", "lead", "principal", "staff", "director", "vp", "c_level"] },
+            "contract": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string" },
+                "duration": { "type": "string" },
+                "start_date": { "type": "string" },
+                "probation_period": { "type": "string" },
+                "notice_period": { "type": "string" }
+              }
+            },
+            "location": {
+              "type": "object",
+              "properties": {
+                "city": { "type": "string" },
+                "country": { "type": "string" },
+                "remote_policy": { "type": "string", "enum": ["full_remote", "hybrid", "on_site", "flexible", "unknown"] },
+                "remote_days_per_week": { "type": "integer" },
+                "travel_required": { "type": "string" }
+              }
+            },
+            "compensation": {
+              "type": "object",
+              "properties": {
+                "salary_min": { "type": "number" },
+                "salary_max": { "type": "number" },
+                "currency": { "type": "string" },
+                "bonus": { "type": "string" },
+                "equity": { "type": "string" },
+                "benefits": { "type": "array", "items": { "type": "string" } },
+                "market_comparison": { "type": "string", "enum": ["above_market", "market_rate", "below_market", "unknown"] }
+              }
+            },
+            "requirements": {
+              "type": "object",
+              "properties": {
+                "hard_skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "skill": { "type": "string" },
+                      "level": { "type": "string" },
+                      "years": { "type": "number" },
+                      "priority": { "type": "string", "enum": ["must_have", "important", "nice_to_have"] },
+                      "category": { "type": "string" }
+                    },
+                    "required": ["skill", "priority"]
+                  }
+                },
+                "soft_skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "skill": { "type": "string" },
+                      "importance": { "type": "string", "enum": ["critical", "important", "nice_to_have"] },
+                      "context": { "type": "string" }
+                    }
+                  }
+                },
+                "education": { "type": "array", "items": { "type": "object", "properties": { "degree": {"type":"string"}, "field": {"type":"string"}, "required": {"type":"boolean"} } } },
+                "languages": { "type": "array", "items": { "type": "object", "properties": { "language": {"type":"string"}, "level": {"type":"string"}, "required": {"type":"boolean"} } } },
+                "experience_years_min": { "type": "number" },
+                "experience_years_preferred": { "type": "number" },
+                "certifications": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "responsibilities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "responsibility": { "type": "string" },
+                  "weight": { "type": "number", "minimum": 0, "maximum": 1, "description": "% du temps" },
+                  "category": { "type": "string", "enum": ["technical", "management", "strategic", "operational", "communication"] }
+                }
+              }
+            },
+            "tools_and_environment": {
+              "type": "object",
+              "properties": {
+                "primary_tools": { "type": "array", "items": { "type": "string" } },
+                "development_environment": { "type": "string" },
+                "ci_cd": { "type": "string" },
+                "project_management": { "type": "string" },
+                "communication_tools": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+            "sources": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["title"]
+        },
+
+        "candidate_profile": {
+          "type": "object",
+          "title": "Profil Candidat — Vue complete",
+          "description": "Profil complet du candidat tel qu'extrait et enrichi",
+          "properties": {
+            "identity": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "current_title": { "type": "string" },
+                "location": { "type": "string" },
+                "nationality": { "type": "string" },
+                "availability": { "type": "string" },
+                "mobility": { "type": "string" }
+              }
+            },
+            "professional_summary": { "type": "string" },
+            "career_trajectory": {
+              "type": "object",
+              "properties": {
+                "direction": { "type": "string", "enum": ["ascending", "lateral", "pivoting", "returning", "starting", "unknown"] },
+                "velocity": { "type": "string", "enum": ["fast_track", "steady", "slow", "stagnant", "unknown"] },
+                "specialization": { "type": "string", "enum": ["specialist", "generalist", "t_shaped", "transitioning"] },
+                "total_experience_years": { "type": "number" },
+                "relevant_experience_years": { "type": "number" },
+                "companies_count": { "type": "integer" },
+                "average_tenure_months": { "type": "integer" },
+                "longest_tenure_months": { "type": "integer" },
+                "shortest_tenure_months": { "type": "integer" }
+              }
+            },
+            "skills_inventory": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "skill": { "type": "string" },
+                  "category": { "type": "string" },
+                  "level": { "type": "string", "enum": ["beginner", "intermediate", "advanced", "expert"] },
+                  "years": { "type": "number" },
+                  "last_used": { "type": "string" },
+                  "evidence_strength": { "type": "string", "enum": ["strong", "moderate", "weak", "claimed_only"] },
+                  "evidence": { "type": "array", "items": { "type": "string" } }
+                },
+                "required": ["skill"]
+              }
+            },
+            "experience": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "role": { "type": "string" },
+                  "company": { "type": "string" },
+                  "company_sector": { "type": "string" },
+                  "company_size": { "type": "string" },
+                  "location": { "type": "string" },
+                  "start_date": { "type": "string" },
+                  "end_date": { "type": "string" },
+                  "duration_months": { "type": "integer" },
+                  "is_current": { "type": "boolean" },
+                  "description": { "type": "string" },
+                  "achievements": { "type": "array", "items": { "type": "string" } },
+                  "technologies": { "type": "array", "items": { "type": "string" } },
+                  "relevance_to_job": { "type": "number", "minimum": 0, "maximum": 1 }
+                }
+              }
+            },
+            "education": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "degree": { "type": "string" },
+                  "field": { "type": "string" },
+                  "institution": { "type": "string" },
+                  "institution_ranking": { "type": "string" },
+                  "year": { "type": "string" },
+                  "honors": { "type": "string" }
+                }
+              }
+            },
+            "languages": { "type": "array", "items": { "type": "object", "properties": { "language": {"type":"string"}, "level": {"type":"string"} } } },
+            "certifications": { "type": "array", "items": { "type": "object", "properties": { "name": {"type":"string"}, "issuer": {"type":"string"}, "year": {"type":"string"}, "valid": {"type":"boolean"} } } },
+            "soft_skills_observed": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "skill": { "type": "string" },
+                  "evidence": { "type": "string" },
+                  "strength": { "type": "string", "enum": ["strong", "moderate", "weak"] }
+                }
+              }
+            },
+            "online_presence": {
+              "type": "object",
+              "properties": {
+                "linkedin": { "type": "string" },
+                "github": { "type": "string" },
+                "portfolio": { "type": "string" },
+                "publications": { "type": "array", "items": { "type": "string" } },
+                "speaking": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+            "sources": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+
+        "historical": {
+          "type": "object",
+          "title": "Historique — Contexte temporel du poste",
+          "description": "Est-ce la premiere fois que le poste est publie, historique de recrutement, contexte marche",
+          "properties": {
+            "job_posting": {
+              "type": "object",
+              "properties": {
+                "is_first_publication": { "type": "boolean" },
+                "times_published": { "type": "integer" },
+                "first_published_date": { "type": "string" },
+                "current_published_date": { "type": "string" },
+                "days_open": { "type": "integer" },
+                "platforms": { "type": "array", "items": { "type": "string" } },
+                "description_changes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": { "type": "string" },
+                      "change": { "type": "string" }
+                    }
+                  },
+                  "description": "Modifications de l'offre au fil du temps"
+                }
+              }
+            },
+            "recruitment_history": {
+              "type": "object",
+              "properties": {
+                "previous_hires_same_role": { "type": "integer" },
+                "average_time_to_hire_days": { "type": "integer" },
+                "difficulty_to_fill": { "type": "string", "enum": ["easy", "moderate", "hard", "very_hard", "unknown"] },
+                "rejection_reasons_common": { "type": "array", "items": { "type": "string" } },
+                "salary_evolution": { "type": "string", "description": "Evolution du salaire propose dans le temps" }
+              }
+            },
+            "market_context": {
+              "type": "object",
+              "properties": {
+                "talent_availability": { "type": "string", "enum": ["surplus", "balanced", "shortage", "severe_shortage", "unknown"] },
+                "demand_trend": { "type": "string", "enum": ["increasing", "stable", "decreasing", "unknown"] },
+                "average_market_salary": { "type": "string" },
+                "competing_offers_count": { "type": "integer", "description": "Nombre d'offres similaires sur le marche" },
+                "industry_growth": { "type": "string", "enum": ["booming", "growing", "stable", "declining", "unknown"] }
+              }
+            },
+            "company_hiring_pattern": {
+              "type": "object",
+              "properties": {
+                "hiring_volume": { "type": "string", "enum": ["aggressive", "steady", "selective", "freezing", "unknown"] },
+                "recent_layoffs": { "type": "boolean" },
+                "open_positions_count": { "type": "integer" },
+                "glassdoor_interview_difficulty": { "type": "number", "minimum": 1, "maximum": 5 }
+              }
+            },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+            "sources": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+
+        "match_synthesis": {
+          "type": "object",
+          "title": "Synthese du match — Verdict final",
+          "description": "L'analyse croisee finale de toutes les categories",
+          "properties": {
+            "overall_score": { "type": "number", "minimum": 0, "maximum": 1 },
+            "recommendation": { "type": "string", "enum": ["strong_match", "good_match", "partial_match", "weak_match", "no_match"] },
+            "category_scores": {
+              "type": "object",
+              "properties": {
+                "hard_skills": { "type": "number", "minimum": 0, "maximum": 1 },
+                "soft_skills": { "type": "number", "minimum": 0, "maximum": 1 },
+                "experience": { "type": "number", "minimum": 0, "maximum": 1 },
+                "education": { "type": "number", "minimum": 0, "maximum": 1 },
+                "culture_fit": { "type": "number", "minimum": 0, "maximum": 1 },
+                "career_trajectory": { "type": "number", "minimum": 0, "maximum": 1 },
+                "compensation_fit": { "type": "number", "minimum": 0, "maximum": 1 },
+                "location_fit": { "type": "number", "minimum": 0, "maximum": 1 },
+                "growth_potential": { "type": "number", "minimum": 0, "maximum": 1 }
+              }
+            },
+            "top_strengths": { "type": "array", "items": { "type": "string" }, "maxItems": 5 },
+            "top_risks": { "type": "array", "items": { "type": "string" }, "maxItems": 5 },
+            "top_unknowns": { "type": "array", "items": { "type": "string" }, "maxItems": 5 },
+            "interview_questions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "question": { "type": "string" },
+                  "purpose": { "type": "string" },
+                  "targets_category": { "type": "string" }
+                }
+              }
+            },
+            "decision_factors": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "factor": { "type": "string" },
+                  "weight": { "type": "number" },
+                  "verdict": { "type": "string", "enum": ["go", "caution", "no_go", "unknown"] },
+                  "rationale": { "type": "string" }
+                }
+              }
+            },
+            "next_steps": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["overall_score", "recommendation", "category_scores"]
+        }
+
+      },
+      "required": ["entity", "job_position", "candidate_profile", "match_synthesis"]
+    }
+  },
+  "required": ["meta", "grand_meta"]
+}
