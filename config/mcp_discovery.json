@@ -1,0 +1,42 @@
+{
+  "discovery": {
+    "sources": [
+      {
+        "type": "environment",
+        "description": "Scan MCP servers available in the runtime environment"
+      },
+      {
+        "type": "config",
+        "description": "MCP servers defined in claude_desktop_config or equivalent"
+      }
+    ],
+    "authentication_policy": {
+      "rule": "exclude_if_required",
+      "excluded_status": {
+        "status": "excluded",
+        "reason": "requires_authentication"
+      },
+      "actions_on_exclusion": [
+        "log_exclusion",
+        "seek_alternative",
+        "degrade_capability"
+      ]
+    },
+    "capability_probing": {
+      "method": "tool_list_inspection",
+      "classify_by": [
+        "tool_name_pattern",
+        "tool_description_keywords",
+        "tool_parameter_types"
+      ]
+    }
+  },
+  "capability_keywords": {
+    "ingestion": ["read", "file", "parse", "pdf", "extract", "load", "fetch", "download"],
+    "structuration": ["segment", "entity", "normalize", "structure", "transform", "split"],
+    "enrichissement": ["search", "lookup", "context", "public", "open_data", "web", "enrich"],
+    "raisonnement": ["reason", "compare", "analyze", "prioritize", "think", "evaluate", "score"],
+    "validation": ["validate", "check", "verify", "schema", "conform", "test"],
+    "generation": ["generate", "create", "produce", "render", "format", "output", "write"]
+  }
+}

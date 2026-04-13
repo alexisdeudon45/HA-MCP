@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mcp-poste:job:schema:v1",
+  "title": "Job Model Schema",
+  "description": "Structured representation of a job offer extracted from the offer PDF",
+  "type": "object",
+  "properties": {
+    "meta": { "$ref": "urn:mcp-poste:meta:meta-schema:v1#/properties/meta" },
+    "job": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "company": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "sector": { "type": "string" },
+            "location": { "type": "string" },
+            "size": { "type": "string" }
+          }
+        },
+        "contract": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string", "description": "CDI, CDD, freelance, etc." },
+            "duration": { "type": "string" },
+            "start_date": { "type": "string" },
+            "remote_policy": { "type": "string" }
+          }
+        },
+        "requirements": {
+          "type": "object",
+          "properties": {
+            "required_skills": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "skill": { "type": "string" },
+                  "level": { "type": "string", "enum": ["junior", "intermediate", "senior", "expert", "unspecified"] },
+                  "years_experience": { "type": "number" },
+                  "priority": { "type": "string", "enum": ["must_have", "nice_to_have", "unspecified"] }
+                },
+                "required": ["skill"]
+              }
+            },
+            "required_education": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "degree": { "type": "string" },
+                  "field": { "type": "string" },
+                  "level": { "type": "string" }
+                }
+              }
+            },
+            "required_languages": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "language": { "type": "string" },
+                  "level": { "type": "string" }
+                },
+                "required": ["language"]
+              }
+            },
+            "experience_years": {
+              "type": "object",
+              "properties": {
+                "minimum": { "type": "number" },
+                "preferred": { "type": "number" }
+              }
+            }
+          }
+        },
+        "responsibilities": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "compensation": {
+          "type": "object",
+          "properties": {
+            "salary_range": { "type": "string" },
+            "benefits": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "raw_sections": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Raw text sections keyed by section name"
+        }
+      },
+      "required": ["title", "requirements"]
+    }
+  },
+  "required": ["meta", "job"]
+}

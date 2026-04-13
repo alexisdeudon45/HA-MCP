@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mcp-poste:analysis:schema:v1",
+  "title": "Analysis Schema",
+  "description": "Structured analysis comparing candidate against job requirements",
+  "type": "object",
+  "properties": {
+    "meta": { "$ref": "urn:mcp-poste:meta:meta-schema:v1#/properties/meta" },
+    "analysis": {
+      "type": "object",
+      "properties": {
+        "job_id": { "type": "string" },
+        "candidate_id": { "type": "string" },
+        "alignments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "requirement": { "type": "string" },
+              "requirement_priority": { "type": "string", "enum": ["must_have", "nice_to_have", "unspecified"] },
+              "candidate_evidence": { "type": "string" },
+              "alignment_score": { "type": "number", "minimum": 0, "maximum": 1 },
+              "status": { "type": "string", "enum": ["aligned", "partial", "gap", "exceeded"] },
+              "details": { "type": "string" }
+            },
+            "required": ["requirement", "status", "alignment_score"]
+          }
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "requirement": { "type": "string" },
+              "severity": { "type": "string", "enum": ["critical", "significant", "minor"] },
+              "candidate_closest": { "type": "string", "description": "Closest matching element in candidate profile" },
+              "remediation_potential": { "type": "string", "enum": ["high", "medium", "low", "none"] },
+              "details": { "type": "string" }
+            },
+            "required": ["requirement", "severity"]
+          }
+        },
+        "signals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "enum": ["strength", "risk", "opportunity", "neutral"] },
+              "description": { "type": "string" },
+              "evidence": { "type": "string" },
+              "impact": { "type": "string", "enum": ["high", "medium", "low"] }
+            },
+            "required": ["type", "description"]
+          }
+        },
+        "uncertainties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "area": { "type": "string" },
+              "reason": { "type": "string" },
+              "impact_if_resolved_positively": { "type": "string" },
+              "impact_if_resolved_negatively": { "type": "string" },
+              "suggested_verification": { "type": "string" }
+            },
+            "required": ["area", "reason"]
+          }
+        },
+        "overall_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Weighted alignment score"
+        },
+        "recommendation": {
+          "type": "string",
+          "enum": ["strong_match", "good_match", "partial_match", "weak_match", "no_match"]
+        },
+        "priorities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rank": { "type": "integer", "minimum": 1 },
+              "item": { "type": "string" },
+              "type": { "type": "string", "enum": ["strength_to_highlight", "gap_to_address", "uncertainty_to_verify"] },
+              "rationale": { "type": "string" }
+            },
+            "required": ["rank", "item", "type"]
+          }
+        }
+      },
+      "required": ["job_id", "candidate_id", "alignments", "gaps", "signals", "uncertainties", "overall_score", "recommendation"]
+    }
+  },
+  "required": ["meta", "analysis"]
+}

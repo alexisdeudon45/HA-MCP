@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mcp-poste:meta:meta-schema:v1",
+  "title": "MCP-Poste Meta Schema",
+  "description": "Meta-schema defining mandatory metadata for all objects in the system. Every data object must include this metadata block.",
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique session identifier"
+        },
+        "object_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique object identifier"
+        },
+        "schema_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Semantic version of the schema"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO-8601 timestamp"
+        },
+        "mcp_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "mcp_id": { "type": "string" },
+              "capability": { "type": "string" },
+              "invoked_at": { "type": "string", "format": "date-time" },
+              "status": { "type": "string", "enum": ["success", "error", "excluded", "degraded"] }
+            },
+            "required": ["mcp_id", "capability", "status"]
+          },
+          "description": "List of MCP sources that contributed to this object"
+        },
+        "validation_status": {
+          "type": "string",
+          "enum": ["pending", "valid", "invalid", "partial"],
+          "description": "Schema validation status"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Confidence score of the data"
+        },
+        "lineage": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "step": { "type": "string" },
+              "input_ids": { "type": "array", "items": { "type": "string" } },
+              "output_id": { "type": "string" },
+              "timestamp": { "type": "string", "format": "date-time" },
+              "transformation": { "type": "string" }
+            },
+            "required": ["step", "output_id", "timestamp"]
+          },
+          "description": "Data lineage tracking"
+        }
+      },
+      "required": [
+        "session_id",
+        "object_id",
+        "schema_version",
+        "timestamp",
+        "mcp_sources",
+        "validation_status",
+        "confidence",
+        "lineage"
+      ]
+    }
+  },
+  "required": ["meta"]
+}

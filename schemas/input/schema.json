@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mcp-poste:input:schema:v1",
+  "title": "Input Schema",
+  "description": "Defines the structure for PDF input documents (offer and CV)",
+  "type": "object",
+  "properties": {
+    "meta": { "$ref": "urn:mcp-poste:meta:meta-schema:v1#/properties/meta" },
+    "inputs": {
+      "type": "object",
+      "properties": {
+        "offer_pdf": {
+          "type": "object",
+          "properties": {
+            "file_path": { "type": "string" },
+            "file_name": { "type": "string" },
+            "file_size_bytes": { "type": "integer", "minimum": 0 },
+            "mime_type": { "type": "string", "const": "application/pdf" },
+            "checksum_sha256": { "type": "string" },
+            "loaded_at": { "type": "string", "format": "date-time" }
+          },
+          "required": ["file_path", "file_name", "mime_type"]
+        },
+        "cv_pdf": {
+          "type": "object",
+          "properties": {
+            "file_path": { "type": "string" },
+            "file_name": { "type": "string" },
+            "file_size_bytes": { "type": "integer", "minimum": 0 },
+            "mime_type": { "type": "string", "const": "application/pdf" },
+            "checksum_sha256": { "type": "string" },
+            "loaded_at": { "type": "string", "format": "date-time" }
+          },
+          "required": ["file_path", "file_name", "mime_type"]
+        }
+      },
+      "required": ["offer_pdf", "cv_pdf"]
+    }
+  },
+  "required": ["meta", "inputs"]
+}

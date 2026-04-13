@@ -1,0 +1,36 @@
+---
+name: "MCP-Poste Analyzer"
+description: "Schema-Driven MCP Orchestrated Candidacy Analyzer for Home Assistant"
+version: "1.0.0"
+slug: "ha-mcp"
+url: "https://github.com/alexisdeudon01/HA-MCP"
+arch:
+  - aarch64
+  - amd64
+homeassistant: "2024.1.0"
+init: false
+startup: "application"
+boot: "auto"
+timeout: 300
+map:
+  - share:rw
+  - media:rw
+  - addon_config:rw
+ports:
+  8099/tcp: 8099
+ports_description:
+  8099/tcp: "MCP-Poste Web Interface"
+options:
+  log_level: "info"
+  storage_path: "/share/ha-mcp"
+  validation_strict: true
+  auto_discover_mcps: true
+schema:
+  log_level: "list(debug|info|warning|error)"
+  storage_path: "str"
+  validation_strict: "bool"
+  auto_discover_mcps: "bool"
+panel_icon: "mdi:file-document-check"
+panel_title: "MCP-Poste"
+ingress: true
+ingress_port: 8099

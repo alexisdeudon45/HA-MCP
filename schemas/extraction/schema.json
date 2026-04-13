@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mcp-poste:extraction:schema:v1",
+  "title": "Extraction Schema",
+  "description": "Defines the structure for raw text extracted from PDF documents",
+  "type": "object",
+  "properties": {
+    "meta": { "$ref": "urn:mcp-poste:meta:meta-schema:v1#/properties/meta" },
+    "extraction": {
+      "type": "object",
+      "properties": {
+        "source_input_id": {
+          "type": "string",
+          "description": "Reference to the input object ID"
+        },
+        "document_type": {
+          "type": "string",
+          "enum": ["offer", "cv"]
+        },
+        "raw_text": {
+          "type": "string",
+          "description": "Full raw text extracted from the PDF"
+        },
+        "pages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "page_number": { "type": "integer", "minimum": 1 },
+              "text": { "type": "string" },
+              "char_count": { "type": "integer" }
+            },
+            "required": ["page_number", "text"]
+          }
+        },
+        "total_pages": { "type": "integer", "minimum": 1 },
+        "total_chars": { "type": "integer", "minimum": 0 },
+        "extraction_method": { "type": "string" },
+        "language_detected": { "type": "string" }
+      },
+      "required": ["source_input_id", "document_type", "raw_text", "pages", "total_pages"]
+    }
+  },
+  "required": ["meta", "extraction"]
+}

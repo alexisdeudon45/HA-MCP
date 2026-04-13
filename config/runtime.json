@@ -1,0 +1,38 @@
+{
+  "project": "mcp-poste",
+  "version": "1.0.0",
+  "runtime": {
+    "schemas_dir": "schemas",
+    "storage_dir": "app/storage",
+    "prompts_dir": "app/prompts",
+    "log_level": "INFO",
+    "max_pipeline_retries": 2,
+    "validation_strict": true
+  },
+  "mcp_discovery": {
+    "scan_environment": true,
+    "auto_exclude_authenticated": true,
+    "capability_categories": [
+      "ingestion",
+      "structuration",
+      "enrichissement",
+      "raisonnement",
+      "validation",
+      "generation"
+    ],
+    "fallback_to_local": true
+  },
+  "pipeline": {
+    "phases": [
+      "initialization",
+      "planning",
+      "ingestion",
+      "structuration",
+      "model_building",
+      "analysis",
+      "generation"
+    ],
+    "validate_each_phase": true,
+    "store_intermediates": true
+  }
+}

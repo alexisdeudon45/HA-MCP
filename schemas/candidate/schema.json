@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mcp-poste:candidate:schema:v1",
+  "title": "Candidate Model Schema",
+  "description": "Structured representation of a candidate extracted from the CV PDF",
+  "type": "object",
+  "properties": {
+    "meta": { "$ref": "urn:mcp-poste:meta:meta-schema:v1#/properties/meta" },
+    "candidate": {
+      "type": "object",
+      "properties": {
+        "identity": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "title": { "type": "string" },
+            "location": { "type": "string" },
+            "contact": {
+              "type": "object",
+              "properties": {
+                "email": { "type": "string" },
+                "phone": { "type": "string" },
+                "linkedin": { "type": "string" },
+                "portfolio": { "type": "string" }
+              }
+            }
+          }
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "skill": { "type": "string" },
+              "category": { "type": "string", "description": "technical, soft, language, tool, etc." },
+              "level": { "type": "string", "enum": ["beginner", "intermediate", "advanced", "expert", "unspecified"] },
+              "years_experience": { "type": "number" },
+              "evidence": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "References to experiences or projects demonstrating this skill"
+              }
+            },
+            "required": ["skill"]
+          }
+        },
+        "experience": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": { "type": "string" },
+              "company": { "type": "string" },
+              "location": { "type": "string" },
+              "start_date": { "type": "string" },
+              "end_date": { "type": "string" },
+              "duration_months": { "type": "integer" },
+              "description": { "type": "string" },
+              "achievements": { "type": "array", "items": { "type": "string" } },
+              "technologies": { "type": "array", "items": { "type": "string" } }
+            },
+            "required": ["role"]
+          }
+        },
+        "education": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "degree": { "type": "string" },
+              "field": { "type": "string" },
+              "institution": { "type": "string" },
+              "year": { "type": "string" },
+              "details": { "type": "string" }
+            }
+          }
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "language": { "type": "string" },
+              "level": { "type": "string" }
+            },
+            "required": ["language"]
+          }
+        },
+        "certifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "issuer": { "type": "string" },
+              "year": { "type": "string" }
+            }
+          }
+        },
+        "total_experience_years": { "type": "number" },
+        "raw_sections": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "required": ["skills", "experience"]
+    }
+  },
+  "required": ["meta", "candidate"]
+}

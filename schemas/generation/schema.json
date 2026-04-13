@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mcp-poste:generation:schema:v1",
+  "title": "Generation Schema",
+  "description": "Defines the structure for generated output artifacts",
+  "type": "object",
+  "properties": {
+    "meta": { "$ref": "urn:mcp-poste:meta:meta-schema:v1#/properties/meta" },
+    "generation": {
+      "type": "object",
+      "properties": {
+        "analysis_id": { "type": "string" },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "artifact_id": { "type": "string" },
+              "type": {
+                "type": "string",
+                "enum": ["summary_report", "detailed_report", "comparison_matrix", "recommendation_letter", "interview_guide", "custom"]
+              },
+              "format": {
+                "type": "string",
+                "enum": ["json", "markdown", "text", "html"]
+              },
+              "title": { "type": "string" },
+              "content": { "type": "string" },
+              "sections": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "heading": { "type": "string" },
+                    "content": { "type": "string" },
+                    "order": { "type": "integer" }
+                  },
+                  "required": ["heading", "content", "order"]
+                }
+              },
+              "generated_at": { "type": "string", "format": "date-time" }
+            },
+            "required": ["artifact_id", "type", "format", "content"]
+          }
+        },
+        "summary": {
+          "type": "object",
+          "properties": {
+            "candidate_name": { "type": "string" },
+            "job_title": { "type": "string" },
+            "overall_score": { "type": "number" },
+            "recommendation": { "type": "string" },
+            "key_strengths": { "type": "array", "items": { "type": "string" } },
+            "key_gaps": { "type": "array", "items": { "type": "string" } },
+            "key_uncertainties": { "type": "array", "items": { "type": "string" } },
+            "next_steps": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["candidate_name", "job_title", "overall_score", "recommendation"]
+        }
+      },
+      "required": ["analysis_id", "artifacts", "summary"]
+    }
+  },
+  "required": ["meta", "generation"]
+}

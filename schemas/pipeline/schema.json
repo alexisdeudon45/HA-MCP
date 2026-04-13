@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mcp-poste:pipeline:schema:v1",
+  "title": "Pipeline Schema",
+  "description": "Defines the pipeline execution plan and state",
+  "type": "object",
+  "properties": {
+    "meta": { "$ref": "urn:mcp-poste:meta:meta-schema:v1#/properties/meta" },
+    "pipeline": {
+      "type": "object",
+      "properties": {
+        "plan_id": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": ["planned", "running", "paused", "completed", "failed", "cancelled"]
+        },
+        "phases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "phase_id": { "type": "string" },
+              "name": { "type": "string" },
+              "order": { "type": "integer", "minimum": 1 },
+              "status": {
+                "type": "string",
+                "enum": ["pending", "running", "completed", "failed", "skipped"]
+              },
+              "required_capabilities": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["ingestion", "structuration", "enrichissement", "raisonnement", "validation", "generation"]
+                }
+              },
+              "assigned_mcps": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "mcp_id": { "type": "string" },
+                    "capability": { "type": "string" },
+                    "status": { "type": "string" }
+                  },
+                  "required": ["mcp_id", "capability"]
+                }
+              },
+              "input_schema_ref": { "type": "string" },
+              "output_schema_ref": { "type": "string" },
+              "started_at": { "type": "string", "format": "date-time" },
+              "completed_at": { "type": "string", "format": "date-time" },
+              "error": { "type": "string" }
+            },
+            "required": ["phase_id", "name", "order", "status", "required_capabilities"]
+          }
+        },
+        "current_phase": { "type": "integer", "minimum": 1 },
+        "started_at": { "type": "string", "format": "date-time" },
+        "completed_at": { "type": "string", "format": "date-time" },
+        "total_duration_ms": { "type": "integer" }
+      },
+      "required": ["plan_id", "status", "phases", "current_phase"]
+    }
+  },
+  "required": ["meta", "pipeline"]
+}

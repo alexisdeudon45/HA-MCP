@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:mcp-poste:registry:v1",
+  "title": "MCP-Poste Schema Registry",
+  "description": "Central registry of all schemas - Single Source of Truth",
+  "version": "1.0.0",
+  "schemas": {
+    "meta": {
+      "id": "urn:mcp-poste:meta:meta-schema:v1",
+      "path": "meta/meta-schema.json",
+      "version": "1.0.0",
+      "description": "Mandatory metadata block for all objects"
+    },
+    "input": {
+      "id": "urn:mcp-poste:input:schema:v1",
+      "path": "input/schema.json",
+      "version": "1.0.0",
+      "description": "PDF input document structure"
+    },
+    "extraction": {
+      "id": "urn:mcp-poste:extraction:schema:v1",
+      "path": "extraction/schema.json",
+      "version": "1.0.0",
+      "description": "Raw text extraction from PDFs"
+    },
+    "job": {
+      "id": "urn:mcp-poste:job:schema:v1",
+      "path": "job/schema.json",
+      "version": "1.0.0",
+      "description": "Structured job offer model"
+    },
+    "candidate": {
+      "id": "urn:mcp-poste:candidate:schema:v1",
+      "path": "candidate/schema.json",
+      "version": "1.0.0",
+      "description": "Structured candidate model"
+    },
+    "analysis": {
+      "id": "urn:mcp-poste:analysis:schema:v1",
+      "path": "analysis/schema.json",
+      "version": "1.0.0",
+      "description": "Candidate-job analysis and comparison"
+    },
+    "generation": {
+      "id": "urn:mcp-poste:generation:schema:v1",
+      "path": "generation/schema.json",
+      "version": "1.0.0",
+      "description": "Generated output artifacts"
+    },
+    "pipeline": {
+      "id": "urn:mcp-poste:pipeline:schema:v1",
+      "path": "pipeline/schema.json",
+      "version": "1.0.0",
+      "description": "Pipeline execution plan and state"
+    }
+  },
+  "pipeline_flow": [
+    { "phase": 1, "name": "initialization", "input_schema": null, "output_schema": "pipeline" },
+    { "phase": 2, "name": "planning", "input_schema": "pipeline", "output_schema": "pipeline" },
+    { "phase": 3, "name": "ingestion", "input_schema": "input", "output_schema": "extraction" },
+    { "phase": 4, "name": "structuration", "input_schema": "extraction", "output_schema": ["job", "candidate"] },
+    { "phase": 5, "name": "model_building", "input_schema": ["job", "candidate"], "output_schema": ["job", "candidate"] },
+    { "phase": 6, "name": "analysis", "input_schema": ["job", "candidate"], "output_schema": "analysis" },
+    { "phase": 7, "name": "generation", "input_schema": "analysis", "output_schema": "generation" }
+  ],
+  "capability_mapping": {
+    "ingestion": ["phase_3"],
+    "structuration": ["phase_4", "phase_5"],
+    "enrichissement": ["phase_5"],
+    "raisonnement": ["phase_5", "phase_6"],
+    "validation": ["phase_1", "phase_2", "phase_3", "phase_4", "phase_5", "phase_6", "phase_7"],
+    "generation": ["phase_7"]
+  }
+}
