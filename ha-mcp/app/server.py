@@ -1,15 +1,16 @@
 """HA-MCP v2: Flask web server with 2-stage pipeline, dynamic MCPs, and live dashboard."""
 
+import asyncio
 import json
 import logging
 import os
-from pathlib import Path
-from dotenv import load_dotenv
-
-load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+import sqlite3
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 from flask import Flask, Response, jsonify, request, render_template
 
@@ -19,34 +20,84 @@ from .mcp_orchestrator.mcp_manager import MCPManager
 
 logger = logging.getLogger(__name__)
 
-LOG_LEVEL = os.environ.get("HA_MCP_LOG_LEVEL", "info").upper()
+LOG_LEVEL    = os.environ.get("HA_MCP_LOG_LEVEL", "info").upper()
 STORAGE_PATH = Path(os.environ.get("HA_MCP_STORAGE_PATH", "/share/ha-mcp"))
-INGRESS_ENTRY = os.environ.get("HA_MCP_INGRESS_ENTRY", "")
-SCHEMAS_DIR = Path("/schemas")
-KEYS_FILE = STORAGE_PATH / "api_keys.json"
+INGRESS_ENTRY= os.environ.get("HA_MCP_INGRESS_ENTRY", "")
+SCHEMAS_DIR  = Path("/schemas")
+KEYS_FILE    = STORAGE_PATH / "api_keys.json"
+# DB : en prod HA → /share/ha-mcp/tool_v2.db  (via HA_MCP_DB_PATH)
+#      en dev local → database/tool_v2.db
+DB_PATH      = Path(os.environ.get("HA_MCP_DB_PATH",
+               str(Path(__file__).resolve().parent.parent / "database" / "tool_v2.db")))
+SCHEMA_DIR   = Path(os.environ.get("HA_MCP_SCHEMA_DIR",
+               str(Path(__file__).resolve().parent.parent / "schemas" / "mcp")))
+CLAUDE_CONFIG= Path.home() / ".claude" / "settings.json"
 
 app = Flask(__name__, template_folder=str(Path(__file__).parent / "templates"))
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024
 
-# ── MCP Catalog ───────────────────────────────────────────────────────────────
-MCP_CATALOG = [
-    {"id":"local_filesystem","name":"Filesystem Local","category":"ingestion","requires_auth":False,"auth_type":None,"auth_key_name":None,"description":"Lecture/ecriture fichiers locaux","tools":[{"name":"read_file","description":"Read file"},{"name":"write_file","description":"Write file"}]},
-    {"id":"local_pdf","name":"PDF Extractor","category":"ingestion","requires_auth":False,"auth_type":None,"auth_key_name":None,"description":"Extraction texte PDF via PyMuPDF","tools":[{"name":"extract_pdf_text","description":"Extract PDF text"}]},
-    {"id":"local_reasoning","name":"Raisonnement Local","category":"raisonnement","requires_auth":False,"auth_type":None,"auth_key_name":None,"description":"Analyse et comparaison locale","tools":[{"name":"analyze_text","description":"Analyze text"},{"name":"compare_structures","description":"Compare structures"}]},
-    {"id":"local_validation","name":"Schema Validator","category":"validation","requires_auth":False,"auth_type":None,"auth_key_name":None,"description":"Validation JSON Schema","tools":[{"name":"validate_json_schema","description":"Validate JSON"}]},
-    {"id":"local_generation","name":"Generateur Local","category":"generation","requires_auth":False,"auth_type":None,"auth_key_name":None,"description":"Generation rapports","tools":[{"name":"generate_report","description":"Generate report"}]},
-    {"id":"duckduckgo","name":"DuckDuckGo Search","category":"enrichissement","requires_auth":False,"auth_type":None,"auth_key_name":None,"description":"Recherche web publique sans cle","tools":[{"name":"web_search","description":"Web search"}]},
-    {"id":"sequential-thinking","name":"Sequential Thinking","category":"raisonnement","requires_auth":False,"auth_type":None,"auth_key_name":None,"description":"Raisonnement sequentiel structure","tools":[{"name":"sequentialthinking","description":"Step-by-step reasoning"}]},
-    {"id":"anthropic_claude","name":"Anthropic Claude API","category":"raisonnement","requires_auth":True,"auth_type":"api_key","auth_key_name":"ANTHROPIC_API_KEY","description":"LLM Claude pour structuration, analyse, generation","tools":[{"name":"chat_completion","description":"Claude analysis"},{"name":"nlp_extract","description":"NLP extraction"}]},
-    {"id":"openai_gpt","name":"OpenAI GPT API","category":"raisonnement","requires_auth":True,"auth_type":"api_key","auth_key_name":"OPENAI_API_KEY","description":"LLM GPT alternatif","tools":[{"name":"chat_completion","description":"GPT analysis"}]},
-    {"id":"google_gemini","name":"Google Gemini","category":"raisonnement","requires_auth":True,"auth_type":"api_key","auth_key_name":"GOOGLE_API_KEY","description":"LLM Gemini alternatif","tools":[{"name":"generate_content","description":"Gemini content"}]},
-    {"id":"mistral_ai","name":"Mistral AI","category":"raisonnement","requires_auth":True,"auth_type":"api_key","auth_key_name":"MISTRAL_API_KEY","description":"LLM Mistral (europeen)","tools":[{"name":"chat_completion","description":"Mistral analysis"}]},
-    {"id":"huggingface","name":"Hugging Face","category":"structuration","requires_auth":True,"auth_type":"api_key","auth_key_name":"HF_API_KEY","description":"Modeles NLP pour NER et classification","tools":[{"name":"ner_extraction","description":"Named entity recognition"}]},
-    {"id":"notion_api","name":"Notion","category":"enrichissement","requires_auth":True,"auth_type":"api_key","auth_key_name":"NOTION_API_KEY","description":"Stockage/lecture analyses dans Notion","tools":[{"name":"notion_search","description":"Search Notion"}]},
-    {"id":"google_drive","name":"Google Drive","category":"ingestion","requires_auth":True,"auth_type":"oauth","auth_key_name":"GOOGLE_DRIVE_TOKEN","description":"Lecture PDFs depuis Drive","tools":[{"name":"read_file","description":"Read from Drive"}]},
-]
 
-# ── Helpers ────────────────────────────────────────────────────────────────────
+# ── Registry dynamique (lit la DB à chaque appel — hot reload) ────────────────
+
+def _load_mcp_registry(api_keys: dict | None = None) -> list[dict]:
+    """
+    Lit le catalogue MCP depuis tool_v2.db.
+    Remplace le MCP_CATALOG hardcodé — mis à jour sans redémarrage.
+    """
+    if not DB_PATH.exists():
+        return []
+    api_keys = api_keys or {}
+    conn = sqlite3.connect(DB_PATH)
+    rows = conn.execute("""
+        SELECT m.mcp_id, m.name, m.category, m.requires_auth,
+               m.auth_type, m.auth_key_name, m.description,
+               t.type, t.command, t.args_json, t.url,
+               GROUP_CONCAT(tl.name, '|') as tool_names
+        FROM mcp m
+        JOIN transport t ON t.mcp_id = m.mcp_id
+        LEFT JOIN tool tl ON tl.mcp_id = m.mcp_id
+        GROUP BY m.mcp_id
+        ORDER BY m.mcp_id
+    """).fetchall()
+    conn.close()
+
+    result = []
+    for r in rows:
+        mcp_id, name, category, requires_auth, auth_type, auth_key_name, \
+        desc, transport_type, command, args_json, url, tool_names = r
+
+        tools = [{"name": t, "description": ""} for t in (tool_names or "").split("|") if t]
+        unlocked = not requires_auth or (auth_key_name and api_keys.get(auth_key_name))
+
+        result.append({
+            "id":            mcp_id,
+            "name":          name,
+            "category":      category or "enrichissement",
+            "requires_auth": bool(requires_auth),
+            "auth_type":     auth_type,
+            "auth_key_name": auth_key_name,
+            "description":   desc or "",
+            "transport":     transport_type,
+            "command":       command,
+            "args":          json.loads(args_json) if args_json else [],
+            "url":           url,
+            "tools":         tools,
+            "status":        "unlocked" if unlocked else "excluded",
+        })
+    return result
+
+
+def _build_active_mcp_tools(api_keys: dict) -> dict[str, list[dict]]:
+    """Retourne les tools des MCPs accessibles (sans auth ou clé présente)."""
+    result = {}
+    for mcp in _load_mcp_registry(api_keys):
+        if mcp["status"] == "unlocked":
+            result[mcp["id"]] = mcp["tools"]
+    return result
+
+
+# ── Helpers clés API ──────────────────────────────────────────────────────────
+
 def _load_api_keys() -> dict[str, str]:
     if KEYS_FILE.exists():
         with open(KEYS_FILE) as f: return json.load(f)
@@ -56,12 +107,30 @@ def _save_api_keys(keys: dict[str, str]) -> None:
     KEYS_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(KEYS_FILE, "w") as f: json.dump(keys, f, indent=2)
 
-def _build_active_mcp_tools(api_keys: dict) -> dict[str, list[dict[str, str]]]:
-    result = {}
-    for mcp in MCP_CATALOG:
-        if not mcp["requires_auth"] or (mcp.get("auth_key_name") and api_keys.get(mcp["auth_key_name"])):
-            result[mcp["id"]] = mcp["tools"]
-    return result
+
+# ── Sync config Claude ─────────────────────────────────────────────────────────
+
+def _sync_claude_config(mcp_id: str, transport: dict) -> bool:
+    """
+    Ajoute le nouveau MCP dans ~/.claude/settings.json
+    pour que Claude Code le voie sans redémarrage.
+    Uniquement pour les MCPs stdio.
+    """
+    if transport.get("type") != "stdio":
+        return False
+    try:
+        cfg = json.loads(CLAUDE_CONFIG.read_text()) if CLAUDE_CONFIG.exists() else {}
+        cfg.setdefault("mcpServers", {})
+        cfg["mcpServers"][mcp_id] = {
+            "command": transport["command"],
+            "args":    transport.get("args", []),
+        }
+        CLAUDE_CONFIG.write_text(json.dumps(cfg, indent=2))
+        logger.info("Claude config updated: %s", mcp_id)
+        return True
+    except Exception as e:
+        logger.warning("Claude config sync failed: %s", e)
+        return False
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
@@ -77,7 +146,7 @@ def index():
         ingress=INGRESS_ENTRY,
         storage=str(STORAGE_PATH),
         schema_count=len(registry.list_schemas()),
-        catalog_json=json.dumps(MCP_CATALOG),
+        catalog_json=json.dumps(_load_mcp_registry(api_keys)),
         keys_json=json.dumps(api_keys),
     )
 
@@ -94,13 +163,76 @@ def api_list_schemas():
 
 @app.route("/api/mcps")
 def api_list_mcps():
+    """Liste tous les MCPs depuis la DB (hot reload — sans redémarrage)."""
     api_keys = _load_api_keys()
-    return jsonify({"mcps": [{**m, "status": "available" if not m["requires_auth"] else ("unlocked" if api_keys.get(m.get("auth_key_name","")) else "excluded")} for m in MCP_CATALOG]})
+    return jsonify({"mcps": _load_mcp_registry(api_keys)})
 
 @app.route("/api/mcps/dynamic")
 def api_dynamic_mcps():
     manager = MCPManager(STORAGE_PATH, _load_api_keys())
     return jsonify({"mcps": manager.get_all_mcps(), "config": manager.get_config()})
+
+@app.route("/api/mcps/register", methods=["POST"])
+def api_register_mcp():
+    """
+    Enregistre un nouveau MCP serveur à chaud (sans redémarrage).
+
+    Body JSON :
+    {
+      "mcp_id":   "my_server",           -- identifiant unique
+      "transport": {
+        "type":    "stdio",              -- stdio | sse | streamable-http
+        "command": "npx",               -- (stdio) commande
+        "args":    ["-y","my-mcp-pkg"], -- (stdio) arguments
+        "url":     null                  -- (sse/http) URL distante
+      },
+      "sync_claude": true               -- optionnel: sync ~/.claude/settings.json
+    }
+
+    Processus :
+      1. Connexion au serveur MCP via SDK
+      2. Interrogation tools/list + resources/list + prompts/list
+      3. INSERT mcp + transport + tools + capabilities en DB
+      4. Écriture schema.json
+      5. Sync ~/.claude/settings.json si demandé
+    """
+    body = request.get_json()
+    if not body or "mcp_id" not in body or "transport" not in body:
+        return jsonify({"error": "mcp_id and transport required"}), 400
+
+    mcp_id    = body["mcp_id"]
+    transport = body["transport"]
+    sync      = body.get("sync_claude", False)
+
+    async def _register():
+        from .mcp_orchestrator.mcp_executor import build_schema_from_server
+        return await build_schema_from_server(
+            mcp_id=mcp_id,
+            transport_conf=transport,
+            db_path=DB_PATH,
+            schema_dir=SCHEMA_DIR,
+        )
+
+    try:
+        schema = asyncio.run(_register())
+    except Exception as e:
+        logger.exception("MCP registration failed")
+        return jsonify({"error": str(e)}), 500
+
+    # Sync Claude config si demandé
+    claude_synced = _sync_claude_config(mcp_id, transport) if sync else False
+
+    return jsonify({
+        "status":       "registered",
+        "mcp_id":       mcp_id,
+        "name":         schema.get("name"),
+        "version":      schema.get("version"),
+        "tools_count":  len(schema.get("tools", [])),
+        "capabilities": schema.get("capabilities", []),
+        "transport":    schema.get("transport", {}).get("type"),
+        "claude_synced":claude_synced,
+        "message":      f"MCP '{mcp_id}' ajouté en DB et disponible immédiatement",
+    })
 
 @app.route("/api/keys", methods=["GET"])
 def api_get_keys():

@@ -1,0 +1,511 @@
+{
+  "$id": "urn:ha-mcp:mcp:filesystem:v1",
+  "mcp_id": "filesystem",
+  "name": "secure-filesystem-server",
+  "version": "0.2.0",
+  "description": "Read the complete contents of a file as text. DEPRECATED: Use read_text_file instead.",
+  "transport": {
+    "type": "stdio",
+    "executor": "npx",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@modelcontextprotocol/server-filesystem",
+      "/"
+    ],
+    "url": null
+  },
+  "auth": {
+    "required": false,
+    "type": "none",
+    "key_name": null
+  },
+  "probe": {
+    "tool": "list_allowed_directories",
+    "args": {},
+    "timeout_ms": 5000
+  },
+  "capabilities": [
+    "ingestion",
+    "enrichissement",
+    "file_read",
+    "file_write"
+  ],
+  "tools": [
+    {
+      "name": "read_file",
+      "description": "Read the complete contents of a file as text. DEPRECATED: Use read_text_file instead.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "tail": {
+            "description": "If provided, returns only the last N lines of the file",
+            "type": "number"
+          },
+          "head": {
+            "description": "If provided, returns only the first N lines of the file",
+            "type": "number"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "prompt_template": {
+        "system": "Lit le contenu complet d'un fichier texte. DÉPRÉCIÉE : préférer read_text_file. Supporte head et tail pour limiter les lignes.",
+        "user": "Lit le fichier {path} (head: {head}, tail: {tail})",
+        "variables": [
+          "path",
+          "head",
+          "tail"
+        ],
+        "example_call": {
+          "path": "/home/user/log.txt",
+          "head": 50,
+          "tail": null
+        }
+      }
+    },
+    {
+      "name": "read_text_file",
+      "description": "Read the complete contents of a file from the file system as text. Handles various text encodings and provides detailed error messages if the file cannot be read. Use this tool when you need to examine the contents of a single file. Use the 'head' parameter to read only the first N lines of a file, or the 'tail' parameter to read only the last N lines of a file. Operates on the file as text regardless of extension. Only works within allowed directories.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "tail": {
+            "description": "If provided, returns only the last N lines of the file",
+            "type": "number"
+          },
+          "head": {
+            "description": "If provided, returns only the first N lines of the file",
+            "type": "number"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "prompt_template": {
+        "system": "Lit le contenu complet d'un fichier texte avec gestion des encodages. Supporte head et tail pour limiter les lignes. Fournit messages d'erreur détaillés si lecture impossible.",
+        "user": "Lit le fichier texte {path} (head: {head}, tail: {tail})",
+        "variables": [
+          "path",
+          "head",
+          "tail"
+        ],
+        "example_call": {
+          "path": "/home/user/README.md",
+          "head": 100,
+          "tail": null
+        }
+      }
+    },
+    {
+      "name": "read_media_file",
+      "description": "Read an image or audio file. Returns the base64 encoded data and MIME type. Only works within allowed directories.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "prompt_template": {
+        "system": "Lit les fichiers image ou audio en retournant les données base64 et le type MIME. Limité aux répertoires autorisés. Idéal pour manipuler des médias.",
+        "user": "Lit le fichier média {path}",
+        "variables": [
+          "path"
+        ],
+        "example_call": {
+          "path": "/home/user/photos/image.jpg"
+        }
+      }
+    },
+    {
+      "name": "read_multiple_files",
+      "description": "Read the contents of multiple files simultaneously. This is more efficient than reading files one by one when you need to analyze or compare multiple files. Each file's content is returned with its path as a reference. Failed reads for individual files won't stop the entire operation. Only works within allowed directories.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "paths": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of file paths to read. Each path must be a string pointing to a valid file within allowed directories."
+          }
+        },
+        "required": [
+          "paths"
+        ]
+      },
+      "prompt_template": {
+        "system": "Lit plusieurs fichiers simultanément, plus efficace qu'une lecture individuelle. Retourne le contenu avec son chemin. Parfait pour comparer ou analyser plusieurs fichiers.",
+        "user": "Lit les fichiers {paths}",
+        "variables": [
+          "paths"
+        ],
+        "example_call": {
+          "paths": [
+            "/home/user/file1.txt",
+            "/home/user/file2.txt",
+            "/home/user/file3.txt"
+          ]
+        }
+      }
+    },
+    {
+      "name": "write_file",
+      "description": "Create a new file or completely overwrite an existing file with new content. Use with caution as it will overwrite existing files without warning. Handles text content with proper encoding. Only works within allowed directories.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "content"
+        ]
+      },
+      "prompt_template": {
+        "system": "Crée un nouveau fichier ou écrase complètement un fichier existant. Gère les encodages texte correctement. À utiliser avec prudence. Limité aux répertoires autorisés.",
+        "user": "Écrit le contenu suivant dans {path}: {content}",
+        "variables": [
+          "path",
+          "content"
+        ],
+        "example_call": {
+          "path": "/home/user/new_file.txt",
+          "content": "Ceci est le contenu du nouveau fichier."
+        }
+      }
+    },
+    {
+      "name": "edit_file",
+      "description": "Make line-based edits to a text file. Each edit replaces exact line sequences with new content. Returns a git-style diff showing the changes made. Only works within allowed directories.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "edits": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "oldText": {
+                  "type": "string",
+                  "description": "Text to search for - must match exactly"
+                },
+                "newText": {
+                  "type": "string",
+                  "description": "Text to replace with"
+                }
+              },
+              "required": [
+                "oldText",
+                "newText"
+              ]
+            }
+          },
+          "dryRun": {
+            "default": false,
+            "description": "Preview changes using git-style diff format",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "path",
+          "edits"
+        ]
+      },
+      "prompt_template": {
+        "system": "Édite des fichiers texte ligne par ligne avec diff-style git. Chaque édition remplace des séquences exactes de lignes. Retourne les modifications appliquées. Utilise dryRun pour prévisualiser.",
+        "user": "Édite {path} avec les modifications suivantes: {edits} (dryRun: {dryRun})",
+        "variables": [
+          "path",
+          "edits",
+          "dryRun"
+        ],
+        "example_call": {
+          "path": "/home/user/config.txt",
+          "edits": [
+            {
+              "oldText": "version=1.0",
+              "newText": "version=2.0"
+            }
+          ],
+          "dryRun": true
+        }
+      }
+    },
+    {
+      "name": "create_directory",
+      "description": "Create a new directory or ensure a directory exists. Can create multiple nested directories in one operation. If the directory already exists, this operation will succeed silently. Perfect for setting up directory structures for projects or ensuring required paths exist. Only works within allowed directories.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "prompt_template": {
+        "system": "Crée des répertoires ou vérifie leur existence. Gère les chemins imbriqués et retourne silencieusement si le répertoire existe déjà. Utilise pour initialiser la structure de dossiers.",
+        "user": "Crée le répertoire à {path}",
+        "variables": [
+          "path"
+        ],
+        "example_call": {
+          "path": "/home/user/projects/new_project"
+        }
+      }
+    },
+    {
+      "name": "list_directory",
+      "description": "Get a detailed listing of all files and directories in a specified path. Results clearly distinguish between files and directories with [FILE] and [DIR] prefixes. This tool is essential for understanding directory structure and finding specific files within a directory. Only works within allowed directories.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "prompt_template": {
+        "system": "Affiche tous les fichiers et dossiers d'un chemin avec préfixes [FILE] et [DIR]. Essentiel pour explorer le contenu d'un répertoire sans vue arborescente.",
+        "user": "Liste le contenu du répertoire {path}",
+        "variables": [
+          "path"
+        ],
+        "example_call": {
+          "path": "/home/user/downloads"
+        }
+      }
+    },
+    {
+      "name": "list_directory_with_sizes",
+      "description": "Get a detailed listing of all files and directories in a specified path, including sizes. Results clearly distinguish between files and directories with [FILE] and [DIR] prefixes. This tool is useful for understanding directory structure and finding specific files within a directory. Only works within allowed directories.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sortBy": {
+            "default": "name",
+            "description": "Sort entries by name or size",
+            "type": "string",
+            "enum": [
+              "name",
+              "size"
+            ]
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "prompt_template": {
+        "system": "Affiche fichiers et dossiers avec leurs tailles. Résultats distingués par [FILE] et [DIR]. Peut être trié par 'name', 'size', ou 'modified'. Utile pour analyser l'utilisation d'espace disque.",
+        "user": "Liste {path} avec tailles, triée par {sortBy}",
+        "variables": [
+          "path",
+          "sortBy"
+        ],
+        "example_call": {
+          "path": "/home/user/documents",
+          "sortBy": "size"
+        }
+      }
+    },
+    {
+      "name": "directory_tree",
+      "description": "Get a recursive tree view of files and directories as a JSON structure. Each entry includes 'name', 'type' (file/directory), and 'children' for directories. Files have no children array, while directories always have a children array (which may be empty). The output is formatted with 2-space indentation for readability. Only works within allowed directories.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "excludePatterns": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "prompt_template": {
+        "system": "Récupère une vue arborescente récursive JSON des fichiers et dossiers. Chaque entrée contient 'name', 'type', et 'children' pour les répertoires. Idéal pour explorer la structure complète d'un projet.",
+        "user": "Affiche l'arborescence de {path} en excluant les patterns {excludePatterns}",
+        "variables": [
+          "path",
+          "excludePatterns"
+        ],
+        "example_call": {
+          "path": "/home/user/projects",
+          "excludePatterns": [
+            "node_modules",
+            ".git",
+            "*.log"
+          ]
+        }
+      }
+    },
+    {
+      "name": "move_file",
+      "description": "Move or rename files and directories. Can move files between directories and rename them in a single operation. If the destination exists, the operation will fail. Works across different directories and can be used for simple renaming within the same directory. Both source and destination must be within allowed directories.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "destination"
+        ]
+      },
+      "prompt_template": {
+        "system": "Déplace ou renomme fichiers et répertoires en une seule opération. Peut déplacer entre dossiers. Échoue si la destination existe. Ne fonctionne que dans les répertoires autorisés.",
+        "user": "Déplace {source} vers {destination}",
+        "variables": [
+          "source",
+          "destination"
+        ],
+        "example_call": {
+          "source": "/home/user/old_name.txt",
+          "destination": "/home/user/new_name.txt"
+        }
+      }
+    },
+    {
+      "name": "search_files",
+      "description": "Recursively search for files and directories matching a pattern. The patterns should be glob-style patterns that match paths relative to the working directory. Use pattern like '*.ext' to match files in current directory, and '**/*.ext' to match files in all subdirectories. Returns full paths to all matching items. Great for finding files when you don't know their exact location. Only searches within allowed directories.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "pattern": {
+            "type": "string"
+          },
+          "excludePatterns": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "path",
+          "pattern"
+        ]
+      },
+      "prompt_template": {
+        "system": "Recherche récursivement fichiers et dossiers selon un pattern glob. Exclut certains patterns. Utile pour localiser fichiers spécifiques dans une arborescence complexe.",
+        "user": "Recherche dans {path} les fichiers correspondant à {pattern}, en excluant {excludePatterns}",
+        "variables": [
+          "path",
+          "pattern",
+          "excludePatterns"
+        ],
+        "example_call": {
+          "path": "/home/user/projects",
+          "pattern": "*.js",
+          "excludePatterns": [
+            "node_modules",
+            "dist"
+          ]
+        }
+      }
+    },
+    {
+      "name": "get_file_info",
+      "description": "Retrieve detailed metadata about a file or directory. Returns comprehensive information including size, creation time, last modified time, permissions, and type. This tool is perfect for understanding file characteristics without reading the actual content. Only works within allowed directories.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      },
+      "prompt_template": {
+        "system": "Récupère les métadonnées détaillées d'un fichier ou répertoire. Retourne taille, dates de création/modification, permissions et type. Parfait pour analyser les propriétés des fichiers.",
+        "user": "Récupère les informations complètes de {path}",
+        "variables": [
+          "path"
+        ],
+        "example_call": {
+          "path": "/home/user/document.pdf"
+        }
+      }
+    },
+    {
+      "name": "list_allowed_directories",
+      "description": "Returns the list of directories that this server is allowed to access. Subdirectories within these allowed directories are also accessible. Use this to understand which directories and their nested paths are available before trying to access files.",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {}
+      },
+      "prompt_template": {
+        "system": "Retourne la liste des répertoires autorisés d'accès du serveur. Les sous-répertoires imbriqués sont également accessibles. Utilise pour comprendre les limites d'accès filesystem.",
+        "user": "Liste les répertoires autorisés",
+        "variables": [],
+        "example_call": {}
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "$id": "urn:ha-mcp:mcp:mermaid-chart:v1",
+  "mcp_id": "mermaid-chart",
+  "name": "mermaid-claude-app",
+  "version": "1.0.0",
+  "description": "\nUse this tool to output a Mermaid diagram:\n- The tool will validate the diagram syntax and render it to a UI widget.\n- The widget will contain the diagram code, a \"Copy Code\" button, and a rendered d",
+  "transport": {
+    "type": "streamable-http",
+    "executor": null,
+    "command": null,
+    "args": [],
+    "url": "https://chatgpt.mermaid.ai/anthropic/mcp"
+  },
+  "auth": {
+    "required": false,
+    "type": "none",
+    "key_name": null
+  },
+  "probe": {
+    "tool": "validate_and_render_mermaid_diagram",
+    "args": {
+      "diagramCode": "test"
+    },
+    "timeout_ms": 5000
+  },
+  "capabilities": [
+    "validation"
+  ],
+  "tools": [
+    {
+      "name": "validate_and_render_mermaid_diagram",
+      "description": "\nUse this tool to output a Mermaid diagram:\n- The tool will validate the diagram syntax and render it to a UI widget.\n- The widget will contain the diagram code, a \"Copy Code\" button, and a rendered diagram.\n- If the diagram is invalid, the widget will give user a link to repair the diagram in Mermaid Live.\n",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "diagramCode": {
+            "type": "string",
+            "description": "The Mermaid diagram code to validate and render"
+          },
+          "title": {
+            "type": "string",
+            "description": "Optional title for the diagram"
+          }
+        },
+        "required": [
+          "diagramCode"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "prompt_template": {
+        "system": "Use this tool to render any Mermaid diagram. It validates the syntax and returns an interactive SVG widget. Ideal for flowcharts, sequence diagrams, gantt charts, and any Mermaid-supported diagram type.",
+        "user": "Render this Mermaid diagram: {{diagram_code}}",
+        "variables": [
+          "diagram_code"
+        ],
+        "example_call": {
+          "diagram_code": "graph TD\n    A[Start] --> B{Decision}\n    B -->|Yes| C[OK]\n    B -->|No| D[End]"
+        }
+      }
+    }
+  ]
+}

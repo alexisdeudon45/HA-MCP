@@ -1,0 +1,264 @@
+{
+  "$id": "urn:ha-mcp:mcp:puppeteer:v1",
+  "mcp_id": "puppeteer",
+  "name": "example-servers/puppeteer",
+  "version": "0.1.0",
+  "description": "Navigate to a URL",
+  "transport": {
+    "type": "stdio",
+    "executor": "npx",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@modelcontextprotocol/server-puppeteer"
+    ],
+    "url": null
+  },
+  "auth": {
+    "required": false,
+    "type": "none",
+    "key_name": null
+  },
+  "probe": {
+    "tool": "puppeteer_screenshot",
+    "args": {
+      "name": "probe"
+    },
+    "timeout_ms": 5000
+  },
+  "capabilities": [
+    "raisonnement"
+  ],
+  "tools": [
+    {
+      "name": "puppeteer_navigate",
+      "description": "Navigate to a URL",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "URL to navigate to"
+          },
+          "launchOptions": {
+            "type": "object",
+            "description": "PuppeteerJS LaunchOptions. Default null. If changed and not null, browser restarts. Example: { headless: true, args: ['--no-sandbox'] }"
+          },
+          "allowDangerous": {
+            "type": "boolean",
+            "description": "Allow dangerous LaunchOptions that reduce security. When false, dangerous args like --no-sandbox will throw errors. Default false."
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "prompt_template": {
+        "system": "Cet outil navigue vers une URL spécifique et initialise le navigateur. Utilisez-le au début d'une session ou pour changer de page. Les options de lancement et allowDangerous sont optionnelles.",
+        "user": "Naviguez vers l'URL: {url}",
+        "variables": [
+          "url"
+        ],
+        "example_call": {
+          "url": "https://exemple.com",
+          "launchOptions": {},
+          "allowDangerous": false
+        }
+      }
+    },
+    {
+      "name": "puppeteer_screenshot",
+      "description": "Take a screenshot of the current page or a specific element",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name for the screenshot"
+          },
+          "selector": {
+            "type": "string",
+            "description": "CSS selector for element to screenshot"
+          },
+          "width": {
+            "type": "number",
+            "description": "Width in pixels (default: 800)"
+          },
+          "height": {
+            "type": "number",
+            "description": "Height in pixels (default: 600)"
+          },
+          "encoded": {
+            "type": "boolean",
+            "description": "If true, capture the screenshot as a base64-encoded data URI (as text) instead of binary image content. Default false."
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "prompt_template": {
+        "system": "Cet outil capture une capture d'écran de la page ou d'un élément spécifique. Utilisez-le pour documenter l'état visuel, déboguer ou valider des changements d'interface.",
+        "user": "Prenez une capture d'écran nommée {name}{selector}{dimensions}{encoded}",
+        "variables": [
+          "name",
+          "selector",
+          "width",
+          "height",
+          "encoded"
+        ],
+        "example_call": {
+          "name": "homepage_screenshot",
+          "selector": "#main-content",
+          "width": 1280,
+          "height": 720,
+          "encoded": true
+        }
+      }
+    },
+    {
+      "name": "puppeteer_click",
+      "description": "Click an element on the page",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "selector": {
+            "type": "string",
+            "description": "CSS selector for element to click"
+          }
+        },
+        "required": [
+          "selector"
+        ]
+      },
+      "prompt_template": {
+        "system": "Cet outil clique sur un élément HTML spécifique de la page. Utilisez-le pour interagir avec des boutons, liens, checkboxes ou tout élément cliquable identifié par un sélecteur CSS valide.",
+        "user": "Cliquez sur l'élément avec le sélecteur: {selector}",
+        "variables": [
+          "selector"
+        ],
+        "example_call": {
+          "selector": "button.submit-btn"
+        }
+      }
+    },
+    {
+      "name": "puppeteer_fill",
+      "description": "Fill out an input field",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "selector": {
+            "type": "string",
+            "description": "CSS selector for input field"
+          },
+          "value": {
+            "type": "string",
+            "description": "Value to fill"
+          }
+        },
+        "required": [
+          "selector",
+          "value"
+        ]
+      },
+      "prompt_template": {
+        "system": "Cet outil remplit un champ input avec une valeur texte. Utilisez-le pour saisir du texte dans des formulaires, champs de recherche ou toute entrée de données identifiée par un sélecteur CSS.",
+        "user": "Remplissez le champ {selector} avec la valeur: {value}",
+        "variables": [
+          "selector",
+          "value"
+        ],
+        "example_call": {
+          "selector": "input#email",
+          "value": "utilisateur@exemple.com"
+        }
+      }
+    },
+    {
+      "name": "puppeteer_select",
+      "description": "Select an element on the page with Select tag",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "selector": {
+            "type": "string",
+            "description": "CSS selector for element to select"
+          },
+          "value": {
+            "type": "string",
+            "description": "Value to select"
+          }
+        },
+        "required": [
+          "selector",
+          "value"
+        ]
+      },
+      "prompt_template": {
+        "system": "Cet outil sélectionne une option dans un élément select HTML. Utilisez-le pour manipuler les listes déroulantes et menus de sélection identifiés par un sélecteur CSS.",
+        "user": "Sélectionnez la valeur {value} dans le select: {selector}",
+        "variables": [
+          "selector",
+          "value"
+        ],
+        "example_call": {
+          "selector": "select#country",
+          "value": "FR"
+        }
+      }
+    },
+    {
+      "name": "puppeteer_hover",
+      "description": "Hover an element on the page",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "selector": {
+            "type": "string",
+            "description": "CSS selector for element to hover"
+          }
+        },
+        "required": [
+          "selector"
+        ]
+      },
+      "prompt_template": {
+        "system": "Cet outil survole un élément HTML pour déclencher des événements hover. Utilisez-le pour afficher des menus déroulants, tooltips ou autres contenus révélés au survol.",
+        "user": "Survolez l'élément avec le sélecteur: {selector}",
+        "variables": [
+          "selector"
+        ],
+        "example_call": {
+          "selector": ".dropdown-trigger"
+        }
+      }
+    },
+    {
+      "name": "puppeteer_evaluate",
+      "description": "Execute JavaScript in the browser console",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "script": {
+            "type": "string",
+            "description": "JavaScript code to execute"
+          }
+        },
+        "required": [
+          "script"
+        ]
+      },
+      "prompt_template": {
+        "system": "Cet outil exécute du code JavaScript arbitraire dans le contexte du navigateur. Utilisez-le pour manipuler le DOM, extraire des données complexes ou modifier l'état de la page directement.",
+        "user": "Exécutez ce script JavaScript: {script}",
+        "variables": [
+          "script"
+        ],
+        "example_call": {
+          "script": "return document.querySelectorAll('.item').length;"
+        }
+      }
+    }
+  ]
+}

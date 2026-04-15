@@ -1,25 +1,39 @@
 {
   "$id": "urn:ha-mcp:mcp:duckduckgo:v1",
   "mcp_id": "duckduckgo",
-  "name": "DuckDuckGo Search",
-  "version": "1.0.0",
-  "description": "Recherche web publique sans clé API via DuckDuckGo. Utilisé pour infos entreprise, compétences, données marché.",
-  "category": "enrichissement",
-  "tags": ["web", "search", "free", "no-auth"],
-
-  "auth": { "required": false, "type": "none" },
-
+  "name": "zhsama/duckduckgo-mcp-server",
+  "version": "0.1.2",
+  "description": "Performs a web search using the DuckDuckGo, ideal for general queries, news, articles, and online content. Use this for broad information gathering, recent events, or when you need diverse web sources",
+  "transport": {
+    "type": "stdio",
+    "executor": "npx",
+    "command": "npx",
+    "args": [
+      "-y",
+      "duckduckgo-mcp-server"
+    ],
+    "url": null
+  },
+  "auth": {
+    "required": false,
+    "type": "none",
+    "key_name": null
+  },
   "probe": {
     "tool": "duckduckgo_web_search",
-    "args": { "query": "test", "count": 1 },
+    "args": {
+      "query": "mcp probe test",
+      "count": 1
+    },
     "timeout_ms": 5000
   },
-
+  "capabilities": [
+    "web_search"
+  ],
   "tools": [
     {
       "name": "duckduckgo_web_search",
-      "description": "Performs a web search using DuckDuckGo. Maximum 20 results per request.",
-      "capability": "web_search",
+      "description": "Performs a web search using the DuckDuckGo, ideal for general queries, news, articles, and online content. Use this for broad information gathering, recent events, or when you need diverse web sources. Supports content filtering and region-specific searches. Maximum 20 results per request.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -37,42 +51,33 @@
           },
           "safeSearch": {
             "type": "string",
-            "description": "SafeSearch level",
-            "enum": ["strict", "moderate", "off"],
+            "description": "SafeSearch level (strict, moderate, off)",
+            "enum": [
+              "strict",
+              "moderate",
+              "off"
+            ],
             "default": "moderate"
           }
         },
-        "required": ["query"]
+        "required": [
+          "query"
+        ]
       },
-      "outputSchema": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "title": { "type": "string" },
-            "href":  { "type": "string" },
-            "body":  { "type": "string" }
-          }
+      "prompt_template": {
+        "system": "Vous êtes un assistant spécialisé dans les recherches web générales via DuckDuckGo. Utilisez cet outil pour trouver des informations actuelles, des articles, des actualités ou du contenu en ligne diversifié. Limitez-vous à des requêtes raisonnables et clarifiez l'intention de l'utilisateur si la requête est ambiguë.",
+        "user": "Recherche sur le web : {query}\nNombre de résultats souhaité : {count}\nNiveau de filtrage : {safeSearch}",
+        "variables": [
+          "query",
+          "count",
+          "safeSearch"
+        ],
+        "example_call": {
+          "query": "tendances IA 2024",
+          "count": 10,
+          "safeSearch": "moderate"
         }
-      },
-      "timeout_ms": 10000
+      }
     }
-  ],
-
-  "capabilities": ["enrichissement", "web_search"],
-  "pipeline_stages": ["1.5", "2.1"],
-
-  "error_handling": {
-    "retry": true,
-    "max_retries": 2,
-    "retry_delay_ms": 1000,
-    "on_failure": "degrade",
-    "degradation_message": "DuckDuckGo inaccessible — enrichissement web désactivé"
-  },
-
-  "metadata": {
-    "local": false,
-    "free": true,
-    "rate_limits": { "requests_per_minute": 30 }
-  }
+  ]
 }

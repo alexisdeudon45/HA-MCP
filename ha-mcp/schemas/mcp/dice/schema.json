@@ -1,0 +1,143 @@
+{
+  "$id": "urn:ha-mcp:mcp:dice:v1",
+  "mcp_id": "dice",
+  "name": "Job Search MCP Server",
+  "version": "1.0.0",
+  "description": "Search for job listings by keyword, location, and filters. Returns job details, company info, and application links.\n\nUse this tool when users want to find jobs, search employment opportunities, or ex",
+  "transport": {
+    "type": "streamable-http",
+    "executor": null,
+    "command": null,
+    "args": [],
+    "url": "https://mcp.dice.com/mcp"
+  },
+  "auth": {
+    "required": false,
+    "type": "none",
+    "key_name": null
+  },
+  "probe": {
+    "tool": "search_jobs",
+    "args": {
+      "keyword": "test"
+    },
+    "timeout_ms": 5000
+  },
+  "capabilities": [
+    "web_search"
+  ],
+  "tools": [
+    {
+      "name": "search_jobs",
+      "description": "Search for job listings by keyword, location, and filters. Returns job details, company info, and application links.\n\nUse this tool when users want to find jobs, search employment opportunities, or explore job openings.\nDO NOT use for: applying to jobs, submitting applications, or making employment decisions.\n\nLLM USAGE INSTRUCTIONS:\n- ALWAYS provide the keyword parameter (required)\n- When presenting results to users, include BOTH the job details URL (detailsPageUrl)\n  AND the company page URL (companyPageUrl) for each job\n- Use location to find geographically relevant positions\n- Combine filters to refine searches (e.g., workplace_types=['Remote'] for remote work)\n- Use posted_date to find recent openings ('ONE'=1 day, 'THREE'=3 days, 'SEVEN'=7 days)\n- Default jobs_per_page is reasonable, increase for comprehensive searches\n\nIMPORTANT - AI DISCLOSURE REQUIREMENT:\nWhen presenting job search results to users, you MUST include an appropriate disclosure\nthat these results were retrieved using AI assistance. Example disclosure language:\n\"These job listings were found using AI-powered search. Please review all job details\ncarefully and verify information directly with employers before applying.\"\n\nThis tool provides job listing data only. Final employment decisions should always\ninvolve human judgment and direct review of complete job postings.\n\nArgs:\n    keyword: The job keyword or title to search for (required)\n    location: Geographic location for the job search (city, state, country)\n    radius: Search radius from the specified location (minimum 1.0)\n    radius_unit: Unit for search radius. Options: 'mi', 'km', 'miles', 'kilometers'\n    jobs_per_page: Number of jobs to return per page (1-100, default handled by API)\n    page_number: Page number for pagination (1-based, default is 1)\n    posted_date: Filter by posting date. Options: 'ONE' (1 day), 'THREE' (3 days), 'SEVEN' (7 days)\n    workplace_types: Workplace arrangements. Options: 'Remote', 'On-Site', 'Hybrid'\n    employment_types: Employment types. Options: 'FULLTIME', 'CONTRACTS', 'PARTTIME', 'THIRD_PARTY'\n    employer_types: Employer types. Options: 'Direct Hire', 'Recruiter', 'Other'\n    willing_to_sponsor: Filter for employers willing to sponsor work authorization (boolean)\n    easy_apply: Filter for jobs with easy application process (boolean)\n    fields: Specific fields to include in response (optional, returns all fields by default)\n\nReturns:\n    JobSearchResult: Contains:\n        - data: List of JobDisplayFields with job details including:\n          * detailsPageUrl: Direct link to full job posting\n          * companyPageUrl: Link to company profile page\n          * title, summary, salary, location, employmentType, etc.\n        - meta: Search metadata with pagination info and facet results\n        - _links: Pagination navigation links\n\nRaises:\n    Exception: If API call fails or input validation errors occur\n",
+      "inputSchema": {
+        "properties": {
+          "keyword": {
+            "type": "string"
+          },
+          "location": {
+            "default": null,
+            "type": "string"
+          },
+          "radius": {
+            "default": null,
+            "type": "number"
+          },
+          "radius_unit": {
+            "default": null,
+            "type": "string"
+          },
+          "jobs_per_page": {
+            "default": null,
+            "type": "integer"
+          },
+          "page_number": {
+            "default": null,
+            "type": "integer"
+          },
+          "posted_date": {
+            "default": null,
+            "type": "string"
+          },
+          "workplace_types": {
+            "default": null,
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "employment_types": {
+            "default": null,
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "employer_types": {
+            "default": null,
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "willing_to_sponsor": {
+            "default": null,
+            "type": "boolean"
+          },
+          "easy_apply": {
+            "default": null,
+            "type": "boolean"
+          },
+          "fields": {
+            "default": null,
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "keyword"
+        ],
+        "type": "object"
+      },
+      "prompt_template": {
+        "system": "Outil de recherche d'offres d'emploi. Utilisé pour trouver des postes par mots-clés, localisation et filtres avancés. Retourne les détails des offres, informations entreprise et liens de candidature.",
+        "user": "Recherche les offres d'emploi pour le poste '{keyword}'{location_clause}{filters_clause}",
+        "variables": [
+          "keyword",
+          "location_clause",
+          "filters_clause"
+        ],
+        "example_call": {
+          "keyword": "Développeur Python",
+          "location": "Paris",
+          "radius": 30,
+          "radius_unit": "km",
+          "jobs_per_page": 20,
+          "page_number": 1,
+          "posted_date": "last_7_days",
+          "workplace_types": [
+            "remote",
+            "hybrid"
+          ],
+          "employment_types": [
+            "full_time",
+            "contract"
+          ],
+          "employer_types": [
+            "company"
+          ],
+          "willing_to_sponsor": true,
+          "easy_apply": true,
+          "fields": [
+            "job_title",
+            "company_name",
+            "salary",
+            "job_description"
+          ]
+        }
+      }
+    }
+  ]
+}
