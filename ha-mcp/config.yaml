@@ -21,11 +21,8 @@ map:
   - media:ro
   - addon_config:rw
 
-ports:
-  8099/tcp: 8099
-ports_description:
-  8099/tcp: "HA-MCP Web Interface"
-
+# Accès via ingress HA uniquement (pas de port externe)
+# L'ingress proxifie le trafic sans exposer de port sur le host
 ingress: true
 ingress_port: 8099
 panel_icon: "mdi:robot-outline"
