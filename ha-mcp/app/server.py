@@ -340,6 +340,197 @@ def list_sessions():
     return jsonify({"sessions": sessions})
 
 
+# ── DB API endpoints ──────────────────────────────────────────────────────────
+
+@app.route("/api/db/summary")
+def api_db_summary():
+    """Stats globales depuis tool_v2.db"""
+    if not DB_PATH.exists():
+        return jsonify({"error": "DB not found"}), 404
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        nb_mcps       = conn.execute("SELECT COUNT(*) FROM mcp").fetchone()[0]
+        nb_tools      = conn.execute("SELECT COUNT(*) FROM tool").fetchone()[0]
+        nb_caps       = conn.execute("SELECT COUNT(*) FROM capability").fetchone()[0]
+        nb_calls      = conn.execute("SELECT COUNT(*) FROM call_history").fetchone()[0]
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+    conn.close()
+    return jsonify({
+        "mcps": nb_mcps,
+        "tools": nb_tools,
+        "capabilities": nb_caps,
+        "calls": nb_calls,
+    })
+
+
+@app.route("/api/db/mcps")
+def api_db_mcps():
+    """Liste MCPs avec transport + capabilities"""
+    if not DB_PATH.exists():
+        return jsonify({"mcps": []})
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    try:
+        rows = conn.execute("""
+            SELECT m.mcp_id, m.name, m.category, m.description,
+                   m.plug_and_play, m.discovered_from,
+                   t.type  AS transport_type,
+                   COUNT(DISTINCT tl.tool_id) AS tools_count,
+                   GROUP_CONCAT(DISTINCT c.name) AS capabilities
+            FROM mcp m
+            LEFT JOIN transport t ON t.mcp_id = m.mcp_id
+            LEFT JOIN tool tl     ON tl.mcp_id = m.mcp_id
+            LEFT JOIN mcp_capability mc ON mc.mcp_id = m.mcp_id
+            LEFT JOIN capability c      ON c.capability_id = mc.capability_id
+            GROUP BY m.mcp_id
+            ORDER BY m.mcp_id
+        """).fetchall()
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+    conn.close()
+    result = []
+    for r in rows:
+        result.append({
+            "mcp_id":        r["mcp_id"],
+            "name":          r["name"],
+            "category":      r["category"],
+            "description":   r["description"],
+            "plug_and_play": bool(r["plug_and_play"]),
+            "discovered_from": r["discovered_from"],
+            "transport":     r["transport_type"],
+            "tools_count":   r["tools_count"],
+            "capabilities":  [c for c in (r["capabilities"] or "").split(",") if c],
+        })
+    return jsonify({"mcps": result})
+
+
+@app.route("/api/db/tools")
+def api_db_tools():
+    """Tools avec paramètres. ?mcp_id=xxx pour filtrer"""
+    if not DB_PATH.exists():
+        return jsonify({"tools": []})
+    mcp_filter = request.args.get("mcp_id")
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    try:
+        query = """
+            SELECT tl.tool_id, tl.mcp_id, tl.name, tl.description,
+                   COUNT(tp.param_id) AS params_count
+            FROM tool tl
+            LEFT JOIN tool_parameter tp ON tp.tool_id = tl.tool_id
+        """
+        params = []
+        if mcp_filter:
+            query += " WHERE tl.mcp_id = ?"
+            params.append(mcp_filter)
+        query += " GROUP BY tl.tool_id ORDER BY tl.mcp_id, tl.name"
+        rows = conn.execute(query, params).fetchall()
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+    conn.close()
+    result = [dict(r) for r in rows]
+    return jsonify({"tools": result})
+
+
+@app.route("/api/db/history")
+def api_db_history():
+    """call_history. ?limit=50&mcp_id=xxx"""
+    if not DB_PATH.exists():
+        return jsonify({"history": []})
+    limit    = int(request.args.get("limit", 100))
+    mcp_filter = request.args.get("mcp_id")
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    try:
+        query = """
+            SELECT call_id, mcp_id, tool_name, status,
+                   duration_ms, started_at, request_json, response_json
+            FROM call_history
+        """
+        params = []
+        if mcp_filter:
+            query += " WHERE mcp_id = ?"
+            params.append(mcp_filter)
+        query += " ORDER BY started_at DESC LIMIT ?"
+        params.append(limit)
+        rows = conn.execute(query, params).fetchall()
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+    conn.close()
+    result = [dict(r) for r in rows]
+    return jsonify({"history": result})
+
+
+@app.route("/api/db/graph")
+def api_db_graph():
+    """Données pour le graphe D3 de découverte.
+    Retourne nodes[] et edges[].
+    Node: {id, name, transport, plug_and_play, tools_count, discovered_count, size}
+    Edge: {source, target} (discovered_from)
+    discovered_count = nombre de MCPs découverts PAR ce nœud
+    size = 20 + discovered_count * 8 (le nœud grossit s'il a trouvé d'autres MCPs)
+    """
+    if not DB_PATH.exists():
+        return jsonify({"nodes": [], "edges": []})
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    try:
+        rows = conn.execute("""
+            SELECT m.mcp_id, m.name, m.plug_and_play, m.discovered_from,
+                   t.type AS transport_type,
+                   COUNT(DISTINCT tl.tool_id) AS tools_count
+            FROM mcp m
+            LEFT JOIN transport t  ON t.mcp_id = m.mcp_id
+            LEFT JOIN tool tl      ON tl.mcp_id = m.mcp_id
+            GROUP BY m.mcp_id
+        """).fetchall()
+
+        # Capabilities per MCP
+        caps_rows = conn.execute("""
+            SELECT mc.mcp_id, GROUP_CONCAT(c.name) AS capabilities
+            FROM mcp_capability mc
+            JOIN capability c ON c.capability_id = mc.capability_id
+            GROUP BY mc.mcp_id
+        """).fetchall()
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": str(e)}), 500
+    conn.close()
+
+    caps_map = {r["mcp_id"]: [c for c in (r["capabilities"] or "").split(",") if c]
+                for r in caps_rows}
+
+    # Count how many MCPs each node has discovered
+    discovered_count: dict = {}
+    edges = []
+    for r in rows:
+        discovered_count.setdefault(r["mcp_id"], 0)
+        if r["discovered_from"]:
+            discovered_count[r["discovered_from"]] = discovered_count.get(r["discovered_from"], 0) + 1
+            edges.append({"source": r["discovered_from"], "target": r["mcp_id"]})
+
+    nodes = []
+    for r in rows:
+        dc = discovered_count.get(r["mcp_id"], 0)
+        nodes.append({
+            "id":              r["mcp_id"],
+            "name":            r["name"],
+            "transport":       r["transport_type"],
+            "plug_and_play":   bool(r["plug_and_play"]),
+            "tools_count":     r["tools_count"],
+            "capabilities":    caps_map.get(r["mcp_id"], []),
+            "discovered_count": dc,
+            "size":            20 + dc * 8,
+        })
+
+    return jsonify({"nodes": nodes, "edges": edges})
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
     logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO), format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")

@@ -15,46 +15,94 @@
       --border: #30363d;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace; background: var(--bg); color: var(--text); font-size: 14px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+           background: var(--bg); color: var(--text); font-size: 14px; }
 
-    /* Nav */
-    .nav { display: flex; background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 16px; position: sticky; top: 0; z-index: 100; }
-    .nav-brand { padding: 12px 16px 12px 0; font-weight: 800; color: var(--blue); font-size: 15px; letter-spacing: -0.5px; }
-    .nav-tab { padding: 12px 14px; cursor: pointer; color: var(--text2); font-size: 12px; font-weight: 600; border-bottom: 2px solid transparent; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.5px; }
+    /* ── Nav ── */
+    .nav { display: flex; background: var(--bg2); border-bottom: 1px solid var(--border);
+           padding: 0 16px; position: sticky; top: 0; z-index: 100; align-items: center; }
+    .nav-brand { padding: 12px 16px 12px 0; font-weight: 800; color: var(--blue);
+                 font-size: 15px; letter-spacing: -0.5px; white-space: nowrap; }
+    .nav-sep { color: var(--text3); padding: 0 6px; }
+    .nav-tab { padding: 12px 14px; cursor: pointer; color: var(--text2); font-size: 12px;
+               font-weight: 600; border-bottom: 2px solid transparent; transition: all 0.15s;
+               text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
     .nav-tab:hover { color: var(--text); }
     .nav-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
-    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green);
+                animation: pulse 2s infinite; flex-shrink: 0; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
 
-    /* Layout */
-    .page { display: none; padding: 20px; max-width: 1400px; margin: 0 auto; }
+    /* ── Layout ── */
+    .page { display: none; padding: 20px; max-width: 1600px; margin: 0 auto; }
     .page.active { display: block; }
+    .graph-page { display: none; padding: 0; max-width: 100%; }
+    .graph-page.active { display: flex; flex-direction: column; height: calc(100vh - 46px); }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
     .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
-    /* Cards */
+    /* ── Cards ── */
     .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-    .card h2 { font-size: 13px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .card h2 { font-size: 13px; color: var(--text2); text-transform: uppercase;
+               letter-spacing: 0.5px; margin-bottom: 12px; }
     .card-full { grid-column: 1 / -1; }
 
-    /* Stats */
+    /* ── Stats ── */
     .stat { text-align: center; padding: 16px; }
     .stat .val { font-size: 28px; font-weight: 800; color: var(--blue); }
     .stat .lbl { font-size: 11px; color: var(--text3); text-transform: uppercase; margin-top: 4px; }
 
-    /* Badges */
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-    .badge-green { background: var(--green-bg); color: var(--green); }
-    .badge-blue { background: #0d1f3c; color: var(--blue); }
-    .badge-red { background: var(--red-bg); color: var(--red); }
-    .badge-orange { background: var(--orange-bg); color: var(--orange); }
-    .badge-purple { background: #1f0d3c; color: var(--purple); }
+    /* ── Badges ── */
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px;
+             font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .badge-green  { background: var(--green-bg);  color: var(--green); }
+    .badge-blue   { background: #0d1f3c;           color: var(--blue); }
+    .badge-red    { background: var(--red-bg);     color: var(--red); }
+    .badge-orange { background: var(--orange-bg);  color: var(--orange); }
+    .badge-purple { background: #1f0d3c;           color: var(--purple); }
+    .badge-stdio  { background: #0d1f3c;           color: var(--blue); }
+    .badge-http   { background: var(--green-bg);   color: var(--green); }
+    .badge-sse    { background: var(--orange-bg);  color: var(--orange); }
 
-    /* Pipeline viz */
+    /* ── Tables ── */
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { text-align: left; padding: 8px 10px; font-size: 10px; color: var(--text3);
+         text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border);
+         font-weight: 700; white-space: nowrap; }
+    td { padding: 7px 10px; border-bottom: 1px solid var(--bg3); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg3); }
+    .td-mono { font-family: monospace; font-size: 11px; color: var(--blue); }
+    .td-desc { color: var(--text2); max-width: 280px; overflow: hidden;
+               text-overflow: ellipsis; white-space: nowrap; }
+    .td-center { text-align: center; }
+
+    /* ── Sub-tabs ── */
+    .sub-tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .sub-tab { padding: 8px 14px; cursor: pointer; color: var(--text2); font-size: 11px;
+               font-weight: 600; border-bottom: 2px solid transparent; transition: all 0.15s;
+               text-transform: uppercase; letter-spacing: 0.3px; }
+    .sub-tab:hover { color: var(--text); }
+    .sub-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .sub-panel { display: none; }
+    .sub-panel.active { display: block; }
+
+    /* ── Filters ── */
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+    select, input[type="search"] {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text); padding: 6px 10px; font-size: 12px; outline: none; }
+    select:focus, input[type="search"]:focus { border-color: var(--blue); }
+
+    /* ── Pipeline viz ── */
     .pipeline-track { display: flex; gap: 2px; align-items: stretch; margin: 12px 0; }
-    .pipeline-step { flex: 1; background: var(--bg3); border-radius: 4px; padding: 8px 6px; text-align: center; font-size: 10px; transition: all 0.3s; position: relative; min-height: 60px; display: flex; flex-direction: column; justify-content: center; }
+    .pipeline-step { flex: 1; background: var(--bg3); border-radius: 4px; padding: 8px 6px;
+                     text-align: center; font-size: 10px; transition: all 0.3s; position: relative;
+                     min-height: 60px; display: flex; flex-direction: column; justify-content: center;
+                     cursor: pointer; }
     .pipeline-step .step-id { font-weight: 800; color: var(--text3); font-size: 9px; }
     .pipeline-step .step-name { margin-top: 2px; font-weight: 600; }
     .pipeline-step.completed { background: var(--green-bg); border: 1px solid var(--green); }
@@ -64,309 +112,878 @@
     .pipeline-step.failed { background: var(--red-bg); border: 1px solid var(--red); }
     .pipeline-step.failed .step-name { color: var(--red); }
     @keyframes glow { 0%,100% { box-shadow: 0 0 4px var(--blue); } 50% { box-shadow: 0 0 12px var(--blue); } }
-    .stage-label { font-size: 11px; font-weight: 700; color: var(--text2); margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 1px; }
+    .stage-label { font-size: 11px; font-weight: 700; color: var(--text2); margin: 16px 0 6px;
+                   text-transform: uppercase; letter-spacing: 1px; }
 
-    /* MCP cards */
-    .mcp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; }
+    /* ── MCP cards (pipeline page) ── */
+    .mcp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 10px; }
     .mcp-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
     .mcp-card .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .mcp-card .name { font-weight: 700; font-size: 13px; }
     .mcp-card .desc { color: var(--text2); font-size: 11px; margin-bottom: 8px; }
     .mcp-card .tools { display: flex; flex-wrap: wrap; gap: 4px; }
-    .tool-tag { background: var(--bg3); padding: 2px 6px; border-radius: 3px; font-size: 10px; color: var(--text2); font-family: monospace; }
+    .tool-tag { background: var(--bg3); padding: 2px 6px; border-radius: 3px;
+                font-size: 10px; color: var(--text2); font-family: monospace; }
 
-    /* Forms */
-    label { display: block; font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; font-weight: 600; }
-    input[type="text"], input[type="password"] { width: 100%; padding: 8px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 13px; outline: none; margin-bottom: 10px; }
+    /* ── Forms ── */
+    label { display: block; font-size: 11px; color: var(--text2); text-transform: uppercase;
+            letter-spacing: 0.5px; margin-bottom: 4px; font-weight: 600; }
+    input[type="text"], input[type="password"] {
+      width: 100%; padding: 8px 12px; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text); font-size: 13px; outline: none; margin-bottom: 10px; }
     input:focus { border-color: var(--blue); }
-    input[type="file"] { width: 100%; padding: 16px; background: var(--bg); border: 2px dashed var(--border); border-radius: 8px; color: var(--text); cursor: pointer; margin-bottom: 10px; }
+    input[type="file"] { width: 100%; padding: 16px; background: var(--bg);
+      border: 2px dashed var(--border); border-radius: 8px; color: var(--text);
+      cursor: pointer; margin-bottom: 10px; }
     input[type="file"]:hover { border-color: var(--blue); }
-    button { background: var(--blue); color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 700; }
+    button { background: var(--blue); color: #fff; border: none; padding: 8px 20px;
+             border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 700; }
     button:hover { background: var(--blue-d); }
     button:disabled { background: var(--text3); cursor: not-allowed; }
-    .btn-sm { padding: 4px 10px; font-size: 11px; }
-    .btn-red { background: var(--red); }
-    .btn-green { background: var(--green); }
+    .btn-sm   { padding: 4px 10px; font-size: 11px; }
+    .btn-red  { background: var(--red); }
+    .btn-green { background: var(--green); color: #000; }
     .btn-full { width: 100%; padding: 12px; font-size: 14px; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+    .btn-ghost:hover { background: var(--bg3); color: var(--text); }
 
-    /* Log console */
-    .log-console { background: #000; border-radius: 6px; padding: 12px; font-family: 'Fira Code', monospace; font-size: 11px; max-height: 400px; overflow-y: auto; line-height: 1.6; }
+    /* ── Log console ── */
+    .log-console { background: #000; border-radius: 6px; padding: 12px; font-family: 'Fira Code', monospace;
+                   font-size: 11px; max-height: 400px; overflow-y: auto; line-height: 1.6; }
     .log-line { padding: 1px 0; }
-    .log-line .ts { color: var(--text3); }
-    .log-line .ev { color: var(--blue); font-weight: 600; }
+    .log-line .ts  { color: var(--text3); }
+    .log-line .ev  { color: var(--blue); font-weight: 600; }
     .log-line .msg { color: var(--text); }
-    .log-line.error .ev { color: var(--red); }
+    .log-line.error   .ev { color: var(--red); }
     .log-line.success .ev { color: var(--green); }
 
-    /* Graph containers */
-    .graph-container { width: 100%; min-height: 350px; background: var(--bg); border-radius: 6px; overflow: hidden; }
-    .graph-container svg { width: 100%; height: 100%; }
-    svg text { fill: var(--text); font-size: 10px; font-family: monospace; }
-    svg .node circle { stroke-width: 2; }
-    svg .link { stroke: var(--text3); stroke-width: 1.5; fill: none; }
-    svg .link.complements { stroke: var(--blue); stroke-dasharray: 4; }
-    svg .link.validates { stroke: var(--green); }
-    svg .link.extends { stroke: var(--purple); }
+    /* ── D3 Graph (discovery) ── */
+    #graphContainer { flex: 1; position: relative; background: var(--bg); overflow: hidden; }
+    #graphSvg { width: 100%; height: 100%; }
+    .graph-toolbar { display: flex; gap: 8px; padding: 10px 16px; background: var(--bg2);
+                     border-bottom: 1px solid var(--border); align-items: center; }
+    .graph-toolbar h2 { font-size: 13px; color: var(--text2); text-transform: uppercase;
+                        letter-spacing: 0.5px; margin-right: auto; }
+    .graph-legend { position: absolute; bottom: 20px; left: 16px; background: rgba(22,27,34,0.92);
+                    border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
+                    font-size: 11px; pointer-events: none; }
+    .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+    .legend-item:last-child { margin-bottom: 0; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    #graphTooltip { position: fixed; background: var(--bg2); border: 1px solid var(--border);
+                    border-radius: 8px; padding: 10px 14px; font-size: 12px; pointer-events: none;
+                    display: none; z-index: 9999; max-width: 260px; line-height: 1.6; box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+    #graphTooltip .tt-name { font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+    #graphTooltip .tt-row { display: flex; justify-content: space-between; gap: 12px; }
+    #graphTooltip .tt-label { color: var(--text3); }
+    svg .d3-link { stroke: var(--text3); stroke-width: 1.5; fill: none; stroke-opacity: 0.6; }
+    svg .d3-node circle { cursor: pointer; transition: opacity 0.2s; }
+    svg .d3-node:hover circle { opacity: 0.85; }
+    svg .d3-node text { font-size: 10px; font-family: monospace; fill: var(--text2); pointer-events: none; }
+
+    /* ── Logs drawer ── */
+    .drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; }
+    .drawer-overlay.open { display: flex; justify-content: flex-end; }
+    .drawer { width: min(680px, 95vw); height: 100vh; background: var(--bg2);
+              border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+    .drawer-header { display: flex; align-items: center; padding: 14px 16px;
+                     border-bottom: 1px solid var(--border); gap: 10px; }
+    .drawer-header h3 { font-size: 13px; font-weight: 700; flex: 1; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+    .drawer-section { margin-bottom: 16px; }
+    .drawer-section h4 { font-size: 11px; text-transform: uppercase; color: var(--text3);
+                         letter-spacing: 0.5px; margin-bottom: 6px; }
+    pre.json { background: #000; padding: 12px; border-radius: 6px; overflow: auto;
+               font-size: 11px; max-height: 400px; font-family: 'Fira Code', monospace;
+               color: var(--green); }
+
+    /* ── Key row ── */
+    .key-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 8px; }
+    .key-row .field { flex: 1; }
+    .key-row .field input { margin-bottom: 0; }
+
+    /* ── Session row ── */
+    .session-row { display: flex; justify-content: space-between; padding: 8px 12px;
+                   margin: 3px 0; border-radius: 6px; background: var(--bg);
+                   cursor: pointer; border: 1px solid transparent; }
+    .session-row:hover { border-color: var(--blue); }
+
+    /* ── Coverage ── */
+    .cov-bar { display: flex; gap: 4px; flex-wrap: wrap; }
+    .cov-item { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+    .cov-ok   { background: var(--green-bg); color: var(--green); }
+    .cov-miss { background: var(--orange-bg); color: var(--orange); }
+
+    /* ── Expandable rows ── */
+    .expand-row { display: none; }
+    .expand-row.open { display: table-row; }
+    .expand-row td { background: var(--bg); padding: 12px; }
+    .expand-content { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .expand-section h4 { font-size: 10px; color: var(--text3); text-transform: uppercase;
+                         margin-bottom: 6px; letter-spacing: 0.5px; }
+    pre.expand-json { background: #000; padding: 8px; border-radius: 4px; font-size: 10px;
+                      max-height: 200px; overflow: auto; font-family: 'Fira Code', monospace;
+                      color: var(--green); }
+
+    /* ── Duration badge ── */
+    .dur-badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px;
+                 font-weight: 700; font-family: monospace; background: var(--bg3); color: var(--text2); }
+    .dur-fast   { color: var(--green); }
+    .dur-medium { color: var(--orange); }
+    .dur-slow   { color: var(--red); }
+
+    /* ── Auto-refresh indicator ── */
+    .refresh-indicator { font-size: 10px; color: var(--text3); }
+    .spinner { display: inline-block; width: 10px; height: 10px; border: 2px solid var(--text3);
+               border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite;
+               vertical-align: middle; margin-right: 4px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Radar chart */
     .radar-container { display: flex; justify-content: center; }
     .gm-category { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 10px; }
     .gm-category h3 { font-size: 12px; color: var(--blue); text-transform: uppercase; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .gm-category h3 .conf { font-size: 10px; color: var(--text3); font-weight: 400; }
     .gm-field { display: flex; justify-content: space-between; padding: 3px 0; font-size: 11px; border-bottom: 1px solid var(--bg3); }
     .gm-field:last-child { border-bottom: none; }
     .gm-field .label { color: var(--text2); }
     .gm-field .value { color: var(--text); font-weight: 600; max-width: 60%; text-align: right; }
     .gm-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
     .gm-tag { background: var(--bg3); padding: 2px 6px; border-radius: 3px; font-size: 10px; color: var(--text2); }
-    .gm-tag.red { background: var(--red-bg); color: var(--red); }
-    .gm-tag.green { background: var(--green-bg); color: var(--green); }
+    .gm-tag.red    { background: var(--red-bg);    color: var(--red); }
+    .gm-tag.green  { background: var(--green-bg);  color: var(--green); }
     .gm-tag.orange { background: var(--orange-bg); color: var(--orange); }
-    .gm-score-bar { height: 6px; border-radius: 3px; background: var(--bg3); margin-top: 4px; }
-    .gm-score-fill { height: 100%; border-radius: 3px; }
     .decision-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .decision-item { background: var(--bg); border-radius: 6px; padding: 10px; border-left: 3px solid; }
-    .decision-item.go { border-left-color: var(--green); }
+    .decision-item.go      { border-left-color: var(--green); }
     .decision-item.caution { border-left-color: var(--orange); }
-    .decision-item.no_go { border-left-color: var(--red); }
-    .decision-item .factor { font-weight: 700; font-size: 12px; }
+    .decision-item.no_go   { border-left-color: var(--red); }
+    .decision-item .factor   { font-weight: 700; font-size: 12px; }
     .decision-item .rationale { font-size: 10px; color: var(--text2); margin-top: 2px; }
     .question-list { list-style: none; }
     .question-list li { padding: 8px; background: var(--bg); border-radius: 6px; margin-bottom: 6px; font-size: 12px; }
     .question-list li .purpose { font-size: 10px; color: var(--text3); margin-top: 2px; }
-
-    /* Coverage */
-    .cov-bar { display: flex; gap: 4px; flex-wrap: wrap; }
-    .cov-item { padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; }
-    .cov-ok { background: var(--green-bg); color: var(--green); }
-    .cov-miss { background: var(--orange-bg); color: var(--orange); }
-
-    /* Key row */
-    .key-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 8px; }
-    .key-row .field { flex: 1; }
-    .key-row .field input { margin-bottom: 0; }
-
-    /* Results */
-    pre.json { background: #000; padding: 12px; border-radius: 6px; overflow: auto; font-size: 11px; max-height: 500px; font-family: 'Fira Code', monospace; }
-
-    /* Sessions */
-    .session-row { display: flex; justify-content: space-between; padding: 8px 12px; margin: 3px 0; border-radius: 6px; background: var(--bg); cursor: pointer; border: 1px solid transparent; }
-    .session-row:hover { border-color: var(--blue); }
+    .graph-container { width: 100%; min-height: 350px; background: var(--bg); border-radius: 6px; overflow: hidden; }
+    .graph-container svg { width: 100%; height: 100%; }
+    svg text { fill: var(--text); font-size: 10px; font-family: monospace; }
+    svg .link { stroke: var(--text3); stroke-width: 1.5; fill: none; }
+    svg .link.complements { stroke: var(--blue); stroke-dasharray: 4; }
+    svg .link.validates   { stroke: var(--green); }
+    svg .link.extends     { stroke: var(--purple); }
   </style>
 </head>
 <body>
 
+<!-- ── Navigation ── -->
 <div class="nav">
   <div class="nav-brand">HA-MCP v2</div>
-  <div class="nav-tab active" data-page="overview">Overview</div>
+  <span class="nav-sep">|</span>
+  <div class="nav-tab active" data-page="db">DB</div>
   <div class="nav-tab" data-page="pipeline">Pipeline</div>
-  <div class="nav-tab" data-page="mcps">MCPs</div>
-  <div class="nav-tab" data-page="resources">Resources</div>
+  <div class="nav-tab" data-page="graph">Graph</div>
+  <div class="nav-tab" data-page="logs">Logs</div>
   <div class="nav-tab" data-page="keys">API Keys</div>
-  <div class="nav-tab" data-page="analyze">Analyze</div>
-  <div class="nav-tab" data-page="report">Report</div>
-  <div class="nav-tab" data-page="history">History</div>
-  <div class="nav-right"><div class="live-dot"></div><span style="font-size:11px;color:var(--text3)">LIVE</span></div>
+  <div class="nav-right">
+    <div class="live-dot"></div>
+    <span style="font-size:11px;color:var(--text3)">LIVE</span>
+  </div>
 </div>
 
-<!-- ═══ OVERVIEW ═══ -->
-<div id="page-overview" class="page active">
+<!-- ═══════════════════════════════════════════════════════
+     TAB 1 : DB
+════════════════════════════════════════════════════════ -->
+<div id="page-db" class="page active">
+
+  <!-- Stats globales -->
   <div class="grid-4" style="margin-bottom:16px;">
-    <div class="card stat"><div class="val" id="s-schemas">-</div><div class="lbl">Schemas</div></div>
-    <div class="card stat"><div class="val" id="s-mcps">-</div><div class="lbl">MCPs Active</div></div>
-    <div class="card stat"><div class="val" id="s-resources">-</div><div class="lbl">Resources</div></div>
-    <div class="card stat"><div class="val" id="s-sessions">-</div><div class="lbl">Sessions</div></div>
+    <div class="card stat"><div class="val" id="db-nb-mcps">-</div><div class="lbl">MCPs</div></div>
+    <div class="card stat"><div class="val" id="db-nb-tools">-</div><div class="lbl">Tools</div></div>
+    <div class="card stat"><div class="val" id="db-nb-caps">-</div><div class="lbl">Capabilities</div></div>
+    <div class="card stat"><div class="val" id="db-nb-calls">-</div><div class="lbl">Appels</div></div>
   </div>
-  <div class="grid-2">
-    <div class="card">
-      <h2>Capability Coverage</h2>
-      <div id="covBar" class="cov-bar"></div>
+
+  <!-- Sous-onglets -->
+  <div class="card">
+    <div class="sub-tabs">
+      <div class="sub-tab active" data-sub="mcps">MCPs</div>
+      <div class="sub-tab" data-sub="tools">Tools</div>
+      <div class="sub-tab" data-sub="caps">Capabilities</div>
+      <div class="sub-tab" data-sub="hist">Historique</div>
     </div>
-    <div class="card">
-      <h2>System</h2>
-      <div class="grid-2" style="gap:8px;">
-        <div style="font-size:12px;"><span style="color:var(--text3)">Host:</span> Raspberry Pi 5</div>
-        <div style="font-size:12px;"><span style="color:var(--text3)">HAOS:</span> 17.2</div>
-        <div style="font-size:12px;"><span style="color:var(--text3)">HA Core:</span> 2026.4.1</div>
-        <div style="font-size:12px;"><span style="color:var(--text3)">Storage:</span> {{ storage }}</div>
+
+    <!-- MCPs -->
+    <div id="sub-mcps" class="sub-panel active">
+      <div class="tbl-wrap">
+        <table id="tbl-mcps">
+          <thead><tr>
+            <th>MCP ID</th><th>Name</th><th>Transport</th>
+            <th>P&amp;P</th><th>Tools</th><th>Capabilities</th><th>Découvert par</th>
+          </tr></thead>
+          <tbody id="tbody-mcps"><tr><td colspan="7" style="color:var(--text3);text-align:center;padding:24px;">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tools -->
+    <div id="sub-tools" class="sub-panel">
+      <div class="filter-bar">
+        <select id="toolMcpFilter"><option value="">Tous les MCPs</option></select>
+        <input type="search" id="toolSearch" placeholder="Rechercher un tool…" style="flex:1;">
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Tool</th><th>MCP ID</th><th>Description</th><th class="td-center">Params</th></tr></thead>
+          <tbody id="tbody-tools"><tr><td colspan="4" style="color:var(--text3);text-align:center;padding:24px;">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Capabilities -->
+    <div id="sub-caps" class="sub-panel">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Capability</th><th class="td-center">Nb MCPs</th><th>Pipeline stages</th></tr></thead>
+          <tbody id="tbody-caps"><tr><td colspan="3" style="color:var(--text3);text-align:center;padding:24px;">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Historique -->
+    <div id="sub-hist" class="sub-panel">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>#</th><th>MCP ID</th><th>Tool</th>
+            <th>Status</th><th>Durée</th><th>Démarré à</th>
+          </tr></thead>
+          <tbody id="tbody-hist">
+            <tr><td colspan="6" style="color:var(--text3);text-align:center;padding:24px;">Chargement…</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ PIPELINE (live) ═══ -->
+<!-- ═══════════════════════════════════════════════════════
+     TAB 2 : PIPELINE
+════════════════════════════════════════════════════════ -->
 <div id="page-pipeline" class="page">
   <div class="card card-full">
-    <h2>Pipeline — Live Execution</h2>
+    <h2>Pipeline — Exécution Live</h2>
     <div class="stage-label">Stage 1 — Discovery</div>
     <div class="pipeline-track" id="stage1Track"></div>
     <div class="stage-label">Stage 2 — Analysis</div>
     <div class="pipeline-track" id="stage2Track"></div>
   </div>
+
   <div class="grid-2" style="margin-top:16px;">
     <div class="card">
-      <h2>Live Log</h2>
-      <div class="log-console" id="liveLog"><div class="log-line"><span class="ts">--:--:--</span> <span class="ev">READY</span> <span class="msg">En attente d'analyse...</span></div></div>
+      <h2>Upload &amp; Analyse</h2>
+      <form id="analyzeForm" enctype="multipart/form-data">
+        <label>Job Offer (PDF)</label>
+        <input type="file" name="offer_pdf" accept=".pdf" required>
+        <label>Candidate CV (PDF)</label>
+        <input type="file" name="cv_pdf" accept=".pdf" required>
+        <button type="submit" id="submitBtn" class="btn-full" style="margin-top:8px;">
+          Launch 2-Stage Analysis
+        </button>
+      </form>
+      <div id="analyzeStatus" style="margin-top:12px;padding:10px;border-radius:6px;display:none;"></div>
     </div>
     <div class="card">
-      <h2>Step Details</h2>
-      <pre class="json" id="stepDetail">Selectionnez une etape...</pre>
+      <h2>Live Log</h2>
+      <div class="log-console" id="liveLog">
+        <div class="log-line"><span class="ts">--:--:--</span> <span class="ev">READY</span>
+          <span class="msg">En attente d'analyse…</span></div>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- ═══ MCPs ═══ -->
-<div id="page-mcps" class="page">
-  <div class="card">
-    <h2>MCP Servers</h2>
-    <p style="color:var(--text2);font-size:11px;margin-bottom:12px;">MCPs are dynamically added by Claude based on CV/job content. Green = active, Blue = unlocked, Red = failed/excluded.</p>
-    <div id="mcpGrid" class="mcp-grid"></div>
-  </div>
-</div>
-
-<!-- ═══ RESOURCES ═══ -->
-<div id="page-resources" class="page">
-  <div class="card card-full">
-    <h2>Resource Dependency Graph</h2>
-    <div class="graph-container" id="resourceGraph" style="height:450px;"></div>
-  </div>
-  <div class="card" style="margin-top:16px;">
-    <h2>Resource List</h2>
-    <div id="resourceList"></div>
-  </div>
-</div>
-
-<!-- ═══ API KEYS ═══ -->
-<div id="page-keys" class="page">
-  <div class="card">
-    <h2>API Keys Configuration</h2>
-    <p style="color:var(--text2);font-size:11px;margin-bottom:12px;">Keys are stored locally in <code>/share/ha-mcp/api_keys.json</code></p>
-    <div id="keysContainer"></div>
-    <div id="keySaved" style="color:var(--green);font-size:12px;display:none;margin-top:8px;">Saved!</div>
-  </div>
-  <div class="card" style="margin-top:16px;">
-    <h2>Add Custom Key</h2>
-    <div class="key-row">
-      <div class="field"><label>Key Name</label><input type="text" id="ckName" placeholder="MY_API_KEY"></div>
-      <div class="field"><label>Value</label><input type="password" id="ckVal" placeholder="sk-..."></div>
-      <div><button class="btn-sm" onclick="addCustomKey()">Add</button></div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ ANALYZE ═══ -->
-<div id="page-analyze" class="page">
-  <div class="card">
-    <h2>Run Analysis</h2>
-    <form id="analyzeForm" enctype="multipart/form-data">
-      <label>Job Offer (PDF)</label>
-      <input type="file" name="offer_pdf" accept=".pdf" required>
-      <label>Candidate CV (PDF)</label>
-      <input type="file" name="cv_pdf" accept=".pdf" required>
-      <button type="submit" id="submitBtn" class="btn-full" style="margin-top:8px;">Launch 2-Stage Analysis</button>
-    </form>
-    <div id="analyzeStatus" style="margin-top:12px;padding:10px;border-radius:6px;display:none;"></div>
-  </div>
   <div id="resultsCard" class="card" style="display:none;margin-top:16px;">
-    <h2>Results</h2>
+    <h2>Résultats</h2>
     <div class="grid-3" id="resultSummary" style="margin-bottom:12px;"></div>
     <pre class="json" id="resultJson"></pre>
   </div>
 </div>
 
-<!-- ═══ REPORT (Grand Meta) ═══ -->
-<div id="page-report" class="page">
-  <div id="reportEmpty" class="card"><p style="color:var(--text3);text-align:center;padding:40px;">Lancez une analyse pour voir le rapport Grand Meta.</p></div>
-
-  <!-- Radar + Score -->
-  <div id="reportContent" style="display:none;">
-    <div class="grid-2" style="margin-bottom:16px;">
-      <div class="card">
-        <h2>Radar de compatibilite</h2>
-        <div class="radar-container" id="radarChart" style="height:320px;"></div>
-      </div>
-      <div class="card">
-        <h2>Verdict</h2>
-        <div style="text-align:center;padding:20px 0;">
-          <div id="rptScore" style="font-size:48px;font-weight:900;color:var(--blue);">-</div>
-          <div id="rptRecommendation" style="font-size:16px;font-weight:700;margin-top:4px;">-</div>
-        </div>
-        <div class="grid-3" style="margin-top:12px;">
-          <div style="text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--green);" id="rptStrengths">0</div><div style="font-size:10px;color:var(--text3);">FORCES</div></div>
-          <div style="text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--red);" id="rptRisks">0</div><div style="font-size:10px;color:var(--text3);">RISQUES</div></div>
-          <div style="text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--orange);" id="rptUnknowns">0</div><div style="font-size:10px;color:var(--text3);">INCONNUS</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Decision Factors -->
-    <div class="card" style="margin-bottom:16px;">
-      <h2>Facteurs de decision</h2>
-      <div class="decision-grid" id="decisionGrid"></div>
-    </div>
-
-    <!-- 7 Categories -->
-    <div class="grid-2">
-      <!-- Entity -->
-      <div class="card">
-        <h2>1. Entite — L'entreprise</h2>
-        <div id="gmEntity"></div>
-      </div>
-      <!-- Organigramme -->
-      <div class="card">
-        <h2>2. Organigramme</h2>
-        <div id="gmOrganigramme"></div>
-      </div>
-      <!-- Real expectations -->
-      <div class="card">
-        <h2>3. Attentes reelles</h2>
-        <div id="gmExpectations"></div>
-      </div>
-      <!-- Job position -->
-      <div class="card">
-        <h2>4. Le Poste</h2>
-        <div id="gmJobPosition"></div>
-      </div>
-      <!-- Candidate -->
-      <div class="card">
-        <h2>5. Profil candidat</h2>
-        <div id="gmCandidate"></div>
-      </div>
-      <!-- Historical -->
-      <div class="card">
-        <h2>6. Historique</h2>
-        <div id="gmHistorical"></div>
-      </div>
-    </div>
-
-    <!-- Interview questions -->
-    <div class="card" style="margin-top:16px;">
-      <h2>Questions d'entretien suggerees</h2>
-      <ul class="question-list" id="questionList"></ul>
-    </div>
-
-    <!-- Full JSON -->
-    <div class="card" style="margin-top:16px;">
-      <h2>Grand Meta Schema — JSON complet</h2>
-      <pre class="json" id="grandMetaJson"></pre>
+<!-- ═══════════════════════════════════════════════════════
+     TAB 3 : DISCOVERY GRAPH
+════════════════════════════════════════════════════════ -->
+<div id="page-graph" class="graph-page">
+  <div class="graph-toolbar">
+    <h2>Discovery Graph</h2>
+    <button class="btn-sm" onclick="loadGraph()">Refresh</button>
+    <button class="btn-sm btn-ghost" onclick="graphResetZoom()">Reset Zoom</button>
+    <span class="refresh-indicator" id="graphStatus"></span>
+  </div>
+  <div id="graphContainer">
+    <svg id="graphSvg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3"
+                orient="auto" markerUnits="userSpaceOnUse">
+          <path d="M0,0 L0,6 L8,3 z" fill="#484f58"/>
+        </marker>
+      </defs>
+      <g id="graphRoot"></g>
+    </svg>
+    <div class="graph-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#58a6ff"></div><span>stdio</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#3fb950"></div><span>streamable-http</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:#d29922"></div><span>sse</span></div>
     </div>
   </div>
 </div>
 
-<!-- ═══ HISTORY ═══ -->
-<div id="page-history" class="page">
-  <div class="card"><h2>Analysis History</h2><div id="sessionsContainer"></div></div>
-  <div id="sessionDetail" class="card" style="display:none;margin-top:16px;"><h2>Session Detail</h2><pre class="json" id="sessionJson"></pre></div>
+<!-- Tooltip D3 -->
+<div id="graphTooltip">
+  <div class="tt-name" id="tt-name"></div>
+  <div class="tt-row"><span class="tt-label">transport</span><span id="tt-transport"></span></div>
+  <div class="tt-row"><span class="tt-label">tools</span><span id="tt-tools"></span></div>
+  <div class="tt-row"><span class="tt-label">capabilities</span><span id="tt-caps"></span></div>
+  <div class="tt-row"><span class="tt-label">plug &amp; play</span><span id="tt-pnp"></span></div>
+  <div class="tt-row"><span class="tt-label">découvert par</span><span id="tt-disc"></span></div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════
+     TAB 4 : LOGS
+════════════════════════════════════════════════════════ -->
+<div id="page-logs" class="page">
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <h2 style="margin-bottom:0;">Derniers appels</h2>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+        <select id="logsMcpFilter"><option value="">Tous les MCPs</option></select>
+        <select id="logsStatusFilter">
+          <option value="">Tous les statuts</option>
+          <option value="success">Success</option>
+          <option value="error">Error</option>
+        </select>
+        <span class="refresh-indicator" id="logsRefreshIndicator"></span>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Timestamp</th><th>MCP ID</th><th>Tool</th>
+          <th>Status</th><th>Durée</th><th></th>
+        </tr></thead>
+        <tbody id="tbody-logs">
+          <tr><td colspan="6" style="color:var(--text3);text-align:center;padding:24px;">Chargement…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Drawer latéral Logs -->
+<div class="drawer-overlay" id="logsDrawer" onclick="closeDrawer(event)">
+  <div class="drawer">
+    <div class="drawer-header">
+      <h3 id="drawerTitle">Call Detail</h3>
+      <button class="btn-sm btn-ghost" onclick="closeDrawer()">✕ Fermer</button>
+    </div>
+    <div class="drawer-body">
+      <div class="drawer-section">
+        <h4>Requête JSON-RPC</h4>
+        <pre class="json" id="drawerRequest">–</pre>
+      </div>
+      <div class="drawer-section">
+        <h4>Réponse</h4>
+        <pre class="json" id="drawerResponse">–</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     TAB 5 : API KEYS
+════════════════════════════════════════════════════════ -->
+<div id="page-keys" class="page">
+  <div class="card">
+    <h2>API Keys Configuration</h2>
+    <p style="color:var(--text2);font-size:11px;margin-bottom:12px;">
+      Clés stockées dans <code>/share/ha-mcp/api_keys.json</code>
+    </p>
+    <div id="keysContainer"></div>
+    <div id="keySaved" style="color:var(--green);font-size:12px;display:none;margin-top:8px;">Enregistré !</div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <h2>Ajouter une clé</h2>
+    <div class="key-row">
+      <div class="field"><label>Nom</label><input type="text" id="ckName" placeholder="MY_API_KEY"></div>
+      <div class="field"><label>Valeur</label><input type="password" id="ckVal" placeholder="sk-..."></div>
+      <div><button class="btn-sm" onclick="addCustomKey()">Ajouter</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ JAVASCRIPT ═══ -->
 <script>
 const BASE = '{{ ingress }}';
 const CATALOG = {{ catalog_json|safe }};
-let API_KEYS = {{ keys_json|safe }};
-let currentResults = null;
-let sseSource = null;
+let API_KEYS  = {{ keys_json|safe }};
 
-// Pipeline step definitions
+let currentResults  = null;
+let sseSource       = null;
+let allTools        = [];
+let allHistory      = [];
+let graphSimulation = null;
+let graphZoom       = null;
+let logsAutoRefresh = null;
+
+// ─────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────
+function transportBadge(t) {
+  if (!t) return '<span class="badge badge-orange">?</span>';
+  if (t === 'stdio')           return '<span class="badge badge-stdio">stdio</span>';
+  if (t === 'streamable-http') return '<span class="badge badge-http">http</span>';
+  if (t === 'sse')             return '<span class="badge badge-sse">sse</span>';
+  return '<span class="badge badge-orange">'+t+'</span>';
+}
+function statusBadge(s) {
+  if (s === 'success') return '<span class="badge badge-green">✓ success</span>';
+  if (s === 'error')   return '<span class="badge badge-red">✗ error</span>';
+  return '<span class="badge badge-orange">'+s+'</span>';
+}
+function durBadge(ms) {
+  if (ms === null || ms === undefined) return '<span class="dur-badge">?</span>';
+  const cls = ms < 500 ? 'dur-fast' : ms < 2000 ? 'dur-medium' : 'dur-slow';
+  return '<span class="dur-badge '+cls+'">'+ms+'ms</span>';
+}
+function fmtTs(ts) {
+  if (!ts) return '–';
+  try { return new Date(ts).toLocaleString('fr-FR'); } catch(e) { return ts; }
+}
+function truncate(s, n) {
+  if (!s) return '–';
+  return s.length > n ? s.substring(0, n) + '…' : s;
+}
+function flash(id) {
+  const el = document.getElementById(id);
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 2000);
+}
+
+// ─────────────────────────────────────────────────────────
+// Navigation
+// ─────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page, .graph-page').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    const page = document.getElementById('page-' + tab.dataset.page);
+    if (page) page.classList.add('active');
+    // Page-specific init
+    if (tab.dataset.page === 'db')       loadDbData();
+    if (tab.dataset.page === 'graph')    loadGraph();
+    if (tab.dataset.page === 'logs')     initLogsPage();
+    if (tab.dataset.page === 'keys')     renderKeys();
+    if (tab.dataset.page === 'pipeline') initPipelineViz();
+    // Stop auto-refresh when leaving logs
+    if (tab.dataset.page !== 'logs' && logsAutoRefresh) {
+      clearInterval(logsAutoRefresh);
+      logsAutoRefresh = null;
+    }
+  });
+});
+
+// Sub-tabs (DB page)
+document.querySelectorAll('.sub-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const group = tab.closest('.card');
+    group.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+    group.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    const panel = document.getElementById('sub-' + tab.dataset.sub);
+    if (panel) panel.classList.add('active');
+    if (tab.dataset.sub === 'hist') loadDbHistory();
+    if (tab.dataset.sub === 'tools') renderToolsTable();
+    if (tab.dataset.sub === 'caps') loadDbCaps();
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// DB — chargement
+// ─────────────────────────────────────────────────────────
+async function loadDbData() {
+  await Promise.all([loadDbSummary(), loadDbMcps(), loadDbToolsList()]);
+}
+
+async function loadDbSummary() {
+  try {
+    const r = await fetch(BASE + '/api/db/summary');
+    const d = await r.json();
+    document.getElementById('db-nb-mcps').textContent  = d.mcps  ?? '–';
+    document.getElementById('db-nb-tools').textContent = d.tools ?? '–';
+    document.getElementById('db-nb-caps').textContent  = d.capabilities ?? '–';
+    document.getElementById('db-nb-calls').textContent = d.calls ?? '–';
+  } catch(e) {}
+}
+
+async function loadDbMcps() {
+  try {
+    const r = await fetch(BASE + '/api/db/mcps');
+    const d = await r.json();
+    const tbody = document.getElementById('tbody-mcps');
+    if (!d.mcps || d.mcps.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text3);text-align:center;padding:24px;">Aucun MCP enregistré.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = d.mcps.map(m => `
+      <tr>
+        <td class="td-mono">${m.mcp_id}</td>
+        <td style="font-weight:600;">${m.name || '–'}</td>
+        <td>${transportBadge(m.transport)}</td>
+        <td class="td-center">${m.plug_and_play ? '✓' : '–'}</td>
+        <td class="td-center">${m.tools_count ?? 0}</td>
+        <td>${(m.capabilities||[]).map(c=>'<span class="badge badge-purple" style="margin:1px;">'+c+'</span>').join(' ')}</td>
+        <td class="td-mono" style="color:var(--text2);">${m.discovered_from || '–'}</td>
+      </tr>`
+    ).join('');
+  } catch(e) {
+    document.getElementById('tbody-mcps').innerHTML =
+      '<tr><td colspan="7" style="color:var(--red);padding:16px;">Erreur : ' + e.message + '</td></tr>';
+  }
+}
+
+async function loadDbToolsList() {
+  try {
+    const r = await fetch(BASE + '/api/db/tools');
+    const d = await r.json();
+    allTools = d.tools || [];
+    // Populate MCP filter
+    const sel = document.getElementById('toolMcpFilter');
+    const mcpIds = [...new Set(allTools.map(t => t.mcp_id))].sort();
+    sel.innerHTML = '<option value="">Tous les MCPs</option>' +
+      mcpIds.map(id => `<option value="${id}">${id}</option>`).join('');
+    renderToolsTable();
+  } catch(e) {}
+}
+
+function renderToolsTable() {
+  const filter = document.getElementById('toolMcpFilter').value;
+  const search = (document.getElementById('toolSearch').value || '').toLowerCase();
+  let tools = allTools;
+  if (filter) tools = tools.filter(t => t.mcp_id === filter);
+  if (search) tools = tools.filter(t =>
+    (t.name||'').toLowerCase().includes(search) ||
+    (t.description||'').toLowerCase().includes(search)
+  );
+  const tbody = document.getElementById('tbody-tools');
+  if (tools.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="color:var(--text3);text-align:center;padding:24px;">Aucun tool.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = tools.map(t => `
+    <tr>
+      <td class="td-mono">${t.name}</td>
+      <td><span class="badge badge-blue">${t.mcp_id}</span></td>
+      <td class="td-desc" title="${(t.description||'').replace(/"/g,'&quot;')}">${truncate(t.description, 80)}</td>
+      <td class="td-center">${t.params_count ?? 0}</td>
+    </tr>`
+  ).join('');
+}
+
+document.getElementById('toolMcpFilter').addEventListener('change', renderToolsTable);
+document.getElementById('toolSearch').addEventListener('input', renderToolsTable);
+
+async function loadDbCaps() {
+  try {
+    const r = await fetch(BASE + '/api/db/mcps');
+    const d = await r.json();
+    // Aggregate capabilities from MCP data
+    const capMap = {};
+    (d.mcps || []).forEach(m => {
+      (m.capabilities || []).forEach(c => {
+        if (!capMap[c]) capMap[c] = { name: c, count: 0 };
+        capMap[c].count++;
+      });
+    });
+    const caps = Object.values(capMap).sort((a, b) => b.count - a.count);
+    const tbody = document.getElementById('tbody-caps');
+    if (caps.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" style="color:var(--text3);text-align:center;padding:24px;">Aucune capability.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = caps.map(c => `
+      <tr>
+        <td><span class="badge badge-purple">${c.name}</span></td>
+        <td class="td-center">${c.count}</td>
+        <td style="color:var(--text3);font-size:11px;">–</td>
+      </tr>`
+    ).join('');
+  } catch(e) {}
+}
+
+async function loadDbHistory() {
+  try {
+    const r = await fetch(BASE + '/api/db/history?limit=50');
+    const d = await r.json();
+    allHistory = d.history || [];
+    renderHistoryTable(allHistory);
+  } catch(e) {}
+}
+
+function renderHistoryTable(rows) {
+  const tbody = document.getElementById('tbody-hist');
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text3);text-align:center;padding:24px;">Aucun appel.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map((r, i) => {
+    const expandId = 'he-' + i;
+    const reqJson  = r.request_json  ? JSON.stringify(JSON.parse(r.request_json), null, 2)  : '–';
+    const respJson = r.response_json ? JSON.stringify(JSON.parse(r.response_json), null, 2) : '–';
+    return `
+      <tr onclick="toggleHistRow('${expandId}')" style="cursor:pointer;">
+        <td class="td-mono" style="color:var(--text3);">${r.call_id}</td>
+        <td><span class="badge badge-blue">${r.mcp_id}</span></td>
+        <td class="td-mono">${r.tool_name}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td>${durBadge(r.duration_ms)}</td>
+        <td style="color:var(--text3);font-size:11px;">${fmtTs(r.started_at)}</td>
+      </tr>
+      <tr id="${expandId}" class="expand-row">
+        <td colspan="6">
+          <div class="expand-content">
+            <div class="expand-section">
+              <h4>Request JSON-RPC</h4>
+              <pre class="expand-json">${escHtml(reqJson)}</pre>
+            </div>
+            <div class="expand-section">
+              <h4>Response</h4>
+              <pre class="expand-json">${escHtml(respJson)}</pre>
+            </div>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function toggleHistRow(id) {
+  const row = document.getElementById(id);
+  if (row) row.classList.toggle('open');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─────────────────────────────────────────────────────────
+// GRAPH — D3 force-directed
+// ─────────────────────────────────────────────────────────
+const TRANSPORT_COLOR = {
+  'stdio':           '#58a6ff',
+  'streamable-http': '#3fb950',
+  'sse':             '#d29922',
+};
+
+function nodeColor(transport) {
+  return TRANSPORT_COLOR[transport] || '#8b949e';
+}
+
+async function loadGraph() {
+  const status = document.getElementById('graphStatus');
+  status.innerHTML = '<span class="spinner"></span> Chargement…';
+  try {
+    const r = await fetch(BASE + '/api/db/graph');
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    renderGraph(d.nodes || [], d.edges || []);
+    status.textContent = d.nodes.length + ' nœuds, ' + d.edges.length + ' liens';
+  } catch(e) {
+    document.getElementById('graphStatus').textContent = 'Erreur : ' + e.message;
+  }
+}
+
+function renderGraph(nodes, edges) {
+  const container = document.getElementById('graphContainer');
+  const svg = d3.select('#graphSvg');
+  const root = d3.select('#graphRoot');
+  root.selectAll('*').remove();
+
+  const W = container.clientWidth  || 1000;
+  const H = container.clientHeight || 600;
+
+  // Zoom
+  graphZoom = d3.zoom().scaleExtent([0.2, 4]).on('zoom', (e) => {
+    root.attr('transform', e.transform);
+  });
+  svg.call(graphZoom);
+
+  // Clone nodes/edges (D3 mutates them)
+  const nodesCopy = nodes.map(n => ({ ...n }));
+  const edgesCopy = edges.map(e => ({ ...e }));
+
+  // Links
+  const link = root.append('g').attr('class','links').selectAll('line')
+    .data(edgesCopy).join('line')
+    .attr('class','d3-link')
+    .attr('marker-end','url(#arrow)');
+
+  // Nodes
+  const node = root.append('g').attr('class','nodes').selectAll('g')
+    .data(nodesCopy).join('g')
+    .attr('class','d3-node')
+    .call(d3.drag()
+      .on('start', (e, d) => { if (!e.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag',  (e, d) => { d.fx=e.x; d.fy=e.y; })
+      .on('end',   (e, d) => { if (!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; })
+    );
+
+  node.append('circle')
+    .attr('r', d => d.size || 20)
+    .attr('fill', d => nodeColor(d.transport))
+    .attr('stroke', '#0d1117')
+    .attr('stroke-width', 2)
+    .attr('fill-opacity', 0.85);
+
+  node.append('text')
+    .attr('dy', d => (d.size || 20) + 14)
+    .attr('text-anchor', 'middle')
+    .text(d => d.id);
+
+  // Tooltip
+  const tooltip = document.getElementById('graphTooltip');
+  node.on('mouseenter', (e, d) => {
+    document.getElementById('tt-name').textContent      = d.name || d.id;
+    document.getElementById('tt-transport').textContent = d.transport || '–';
+    document.getElementById('tt-tools').textContent     = d.tools_count ?? 0;
+    document.getElementById('tt-caps').textContent      = (d.capabilities||[]).join(', ') || '–';
+    document.getElementById('tt-pnp').textContent       = d.plug_and_play ? 'Oui' : 'Non';
+    document.getElementById('tt-disc').textContent      = d.discovered_count + ' MCP(s) découvert(s)';
+    tooltip.style.display = 'block';
+  })
+  .on('mousemove', (e) => {
+    const x = e.clientX + 14;
+    const y = e.clientY + 8;
+    tooltip.style.left = Math.min(x, window.innerWidth - 280) + 'px';
+    tooltip.style.top  = Math.min(y, window.innerHeight - 160) + 'px';
+  })
+  .on('mouseleave', () => { tooltip.style.display = 'none'; });
+
+  // Simulation
+  const sim = d3.forceSimulation(nodesCopy)
+    .force('link', d3.forceLink(edgesCopy).id(d => d.id).distance(120))
+    .force('charge', d3.forceManyBody().strength(-300))
+    .force('center', d3.forceCenter(W / 2, H / 2))
+    .force('collision', d3.forceCollide(d => (d.size || 20) + 12));
+
+  graphSimulation = sim;
+
+  sim.on('tick', () => {
+    link
+      .attr('x1', d => d.source.x)
+      .attr('y1', d => d.source.y)
+      .attr('x2', d => {
+        // Shorten line to not overlap arrowhead with circle
+        const dx = d.target.x - d.source.x;
+        const dy = d.target.y - d.source.y;
+        const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+        const r = (d.target.size || 20) + 6;
+        return d.target.x - (dx / dist) * r;
+      })
+      .attr('y2', d => {
+        const dx = d.target.x - d.source.x;
+        const dy = d.target.y - d.source.y;
+        const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+        const r = (d.target.size || 20) + 6;
+        return d.target.y - (dy / dist) * r;
+      });
+
+    node.attr('transform', d => 'translate(' + d.x + ',' + d.y + ')');
+  });
+}
+
+function graphResetZoom() {
+  if (!graphZoom) return;
+  d3.select('#graphSvg').transition().duration(400).call(graphZoom.transform, d3.zoomIdentity);
+}
+
+// ─────────────────────────────────────────────────────────
+// LOGS — tableau avec auto-refresh
+// ─────────────────────────────────────────────────────────
+let logsAllRows   = [];
+let logsMcpFilter = '';
+let logsStatusFilter = '';
+
+async function initLogsPage() {
+  await loadLogs();
+  if (!logsAutoRefresh) {
+    logsAutoRefresh = setInterval(loadLogs, 5000);
+  }
+}
+
+async function loadLogs() {
+  const indicator = document.getElementById('logsRefreshIndicator');
+  if (indicator) indicator.innerHTML = '<span class="spinner"></span>';
+  try {
+    const r = await fetch(BASE + '/api/db/history?limit=100');
+    const d = await r.json();
+    logsAllRows = d.history || [];
+
+    // Populate MCP filter
+    const sel = document.getElementById('logsMcpFilter');
+    const prev = sel.value;
+    const mcpIds = [...new Set(logsAllRows.map(r => r.mcp_id))].sort();
+    sel.innerHTML = '<option value="">Tous les MCPs</option>' +
+      mcpIds.map(id => `<option value="${id}"${id===prev?' selected':''}>${id}</option>`).join('');
+
+    renderLogsTable();
+  } catch(e) {}
+  if (indicator) indicator.textContent = 'mis à jour ' + new Date().toLocaleTimeString('fr-FR');
+}
+
+document.getElementById('logsMcpFilter').addEventListener('change', e => {
+  logsMcpFilter = e.target.value; renderLogsTable();
+});
+document.getElementById('logsStatusFilter').addEventListener('change', e => {
+  logsStatusFilter = e.target.value; renderLogsTable();
+});
+
+function renderLogsTable() {
+  let rows = logsAllRows;
+  if (logsMcpFilter)    rows = rows.filter(r => r.mcp_id === logsMcpFilter);
+  if (logsStatusFilter) rows = rows.filter(r => r.status === logsStatusFilter);
+
+  const tbody = document.getElementById('tbody-logs');
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text3);text-align:center;padding:24px;">Aucun appel.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr style="cursor:pointer;" onclick="openDrawer(${JSON.stringify(r).replace(/"/g,'&quot;')})">
+      <td style="color:var(--text3);font-size:11px;">${fmtTs(r.started_at)}</td>
+      <td><span class="badge badge-blue">${r.mcp_id}</span></td>
+      <td class="td-mono">${r.tool_name}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td>${durBadge(r.duration_ms)}</td>
+      <td style="color:var(--text3);font-size:10px;">›</td>
+    </tr>`
+  ).join('');
+}
+
+function openDrawer(row) {
+  document.getElementById('drawerTitle').textContent =
+    '[' + row.mcp_id + '] ' + row.tool_name;
+  let req = '–', resp = '–';
+  try { req  = JSON.stringify(JSON.parse(row.request_json),  null, 2); } catch(e) { req = row.request_json || '–'; }
+  try { resp = JSON.stringify(JSON.parse(row.response_json), null, 2); } catch(e) { resp = row.response_json || '–'; }
+  document.getElementById('drawerRequest').textContent  = req;
+  document.getElementById('drawerResponse').textContent = resp;
+  document.getElementById('logsDrawer').classList.add('open');
+}
+function closeDrawer(e) {
+  if (!e || e.target === document.getElementById('logsDrawer')) {
+    document.getElementById('logsDrawer').classList.remove('open');
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// PIPELINE VIZ
+// ─────────────────────────────────────────────────────────
 const STEPS = {
   stage_1: [
     {id:'1.0',name:'init'},{id:'1.1',name:'ingest'},{id:'1.2',name:'structure'},
@@ -380,25 +997,13 @@ const STEPS = {
   ]
 };
 
-// ── Nav ──
-document.querySelectorAll('.nav-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('page-' + tab.dataset.page).classList.add('active');
-    if (tab.dataset.page === 'history') loadSessions();
-    if (tab.dataset.page === 'resources') renderResourceGraph();
-  });
-});
-
-// ── Pipeline Viz ──
 function initPipelineViz() {
   ['stage_1','stage_2'].forEach(stage => {
     const track = document.getElementById(stage === 'stage_1' ? 'stage1Track' : 'stage2Track');
+    if (!track) return;
     track.innerHTML = STEPS[stage].map(s =>
-      '<div class="pipeline-step" id="step-'+s.id+'" onclick="showStepDetail(\''+s.id+'\')">' +
-      '<div class="step-id">'+s.id+'</div><div class="step-name">'+s.name+'</div></div>'
+      '<div class="pipeline-step" id="step-' + s.id + '" onclick="showStepDetail(\'' + s.id + '\')">' +
+      '<div class="step-id">' + s.id + '</div><div class="step-name">' + s.name + '</div></div>'
     ).join('');
   });
 }
@@ -407,480 +1012,154 @@ function updatePipelineStep(stepId, status, data) {
   const el = document.getElementById('step-' + stepId);
   if (!el) return;
   el.className = 'pipeline-step ' + status;
-  if (data && data.duration_ms) {
-    el.title = JSON.stringify(data, null, 2);
-  }
+  if (data && data.duration_ms) el.title = JSON.stringify(data, null, 2);
 }
 
 function showStepDetail(stepId) {
   if (!currentResults) return;
   const data = currentResults.steps && currentResults.steps[stepId];
-  document.getElementById('stepDetail').textContent = data ? JSON.stringify(data, null, 2) : 'No data for step ' + stepId;
+  const el = document.getElementById('stepDetail');
+  if (el) el.textContent = data ? JSON.stringify(data, null, 2) : 'Pas de données pour l\'étape ' + stepId;
 }
 
-// ── Live Log ──
 function appendLog(type, stepId, name, msg, isError) {
   const log = document.getElementById('liveLog');
-  const ts = new Date().toLocaleTimeString('fr-FR');
+  if (!log) return;
+  const ts  = new Date().toLocaleTimeString('fr-FR');
   const cls = isError ? 'error' : (type === 'step_complete' ? 'success' : '');
-  log.innerHTML += '<div class="log-line '+cls+'"><span class="ts">'+ts+'</span> <span class="ev">['+stepId+'] '+name+'</span> <span class="msg">'+msg+'</span></div>';
+  log.innerHTML += '<div class="log-line ' + cls + '"><span class="ts">' + ts + '</span> ' +
+    '<span class="ev">[' + stepId + '] ' + name + '</span> <span class="msg">' + msg + '</span></div>';
   log.scrollTop = log.scrollHeight;
 }
 
-// ── SSE for live updates ──
 function startSSE(sessionId) {
   if (sseSource) sseSource.close();
   sseSource = new EventSource(BASE + '/api/events/' + sessionId);
   sseSource.onmessage = function(e) {
     const data = JSON.parse(e.data);
-    if (data.type === 'step_start') {
-      updatePipelineStep(data.step_id, 'running');
-      appendLog(data.type, data.step_id, data.step_name, 'Started...');
-    } else if (data.type === 'step_complete') {
-      updatePipelineStep(data.step_id, 'completed', data);
-      appendLog(data.type, data.step_id, data.step_name, 'Done (' + (data.duration_ms||'?') + 'ms)');
-    } else if (data.type === 'step_failed') {
-      updatePipelineStep(data.step_id, 'failed');
-      appendLog(data.type, data.step_id, data.step_name, 'FAILED: ' + (data.error||''), true);
-    } else if (data.type === 'pipeline_complete') {
-      sseSource.close();
-      currentResults = data.results;
-      renderResourceGraph();
-      if (data.results.grand_meta) renderReport(data.results.grand_meta);
-    }
+    if      (data.type === 'step_start')     { updatePipelineStep(data.step_id,'running'); appendLog(data.type,data.step_id,data.step_name,'Started…'); }
+    else if (data.type === 'step_complete')  { updatePipelineStep(data.step_id,'completed',data); appendLog(data.type,data.step_id,data.step_name,'Done ('+(data.duration_ms||'?')+'ms)'); }
+    else if (data.type === 'step_failed')    { updatePipelineStep(data.step_id,'failed'); appendLog(data.type,data.step_id,data.step_name,'FAILED: '+(data.error||''),true); }
+    else if (data.type === 'pipeline_complete') { sseSource.close(); currentResults = data.results; }
   };
 }
 
-// ── MCPs ──
-function mcpStatus(mcp) {
-  if (!mcp.requires_auth) return 'available';
-  if (mcp.auth_key_name && API_KEYS[mcp.auth_key_name]) return 'unlocked';
-  return 'excluded';
-}
+// Analyze form
+document.getElementById('analyzeForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn    = document.getElementById('submitBtn');
+  const status = document.getElementById('analyzeStatus');
+  btn.disabled = true;
+  btn.textContent = 'Running 2-stage pipeline…';
+  status.style.display  = 'block';
+  status.style.background = '#0d1f3c';
+  status.style.border   = '1px solid var(--blue)';
+  status.textContent    = 'Pipeline démarré…';
+  document.getElementById('resultsCard').style.display = 'none';
 
-function renderMCPs() {
-  const grid = document.getElementById('mcpGrid');
-  let active = 0;
-  grid.innerHTML = CATALOG.map(mcp => {
-    const st = mcpStatus(mcp);
-    if (st !== 'excluded') active++;
-    const bcls = st === 'available' ? 'badge-green' : st === 'unlocked' ? 'badge-blue' : 'badge-red';
-    return '<div class="mcp-card"><div class="head"><span class="name">'+mcp.name+'</span><span class="badge '+bcls+'">'+st+'</span></div>' +
-      '<div class="desc">'+mcp.description+'</div><div class="tools">'+mcp.tools.map(t=>'<span class="tool-tag">'+t.name+'</span>').join('')+'</div></div>';
-  }).join('');
-  document.getElementById('s-mcps').textContent = active;
+  initPipelineViz();
+  document.getElementById('liveLog').innerHTML = '';
+  appendLog('system','--','--','Pipeline démarré…');
 
-  // Coverage
-  const cats = ['ingestion','structuration','enrichissement','raisonnement','validation','generation','nlp','mcp_discovery'];
-  const covered = {};
-  cats.forEach(c => covered[c] = false);
-  CATALOG.forEach(m => { if (mcpStatus(m)!=='excluded') covered[m.category]=true; });
-  document.getElementById('covBar').innerHTML = cats.map(c =>
-    '<span class="cov-item '+(covered[c]?'cov-ok':'cov-miss')+'">'+c+'</span>'
-  ).join('');
-}
-
-// ── Resource Graph (D3) ──
-function renderResourceGraph() {
-  const container = document.getElementById('resourceGraph');
-  container.innerHTML = '';
-  const resources = (currentResults && currentResults.resources) || [];
-  if (resources.length === 0) {
-    container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3)">No resources yet. Run an analysis first.</div>';
-    return;
-  }
-
-  const width = container.clientWidth || 700;
-  const height = 450;
-  const svg = d3.select(container).append('svg').attr('viewBox', [0,0,width,height]);
-
-  const colorMap = {
-    company_profile:'#58a6ff', company_culture:'#bc8cff', company_news:'#d29922',
-    industry_report:'#39d353', skill_reference:'#f0883e', job_market_data:'#f85149',
-    custom:'#8b949e'
-  };
-
-  const nodes = resources.map((r,i) => ({
-    id: r.resource_id, name: r.name.substring(0,30), type: r.type,
-    color: colorMap[r.type] || '#8b949e', stage: r.stage
-  }));
-
-  const links = [];
-  resources.forEach(r => {
-    (r.dependencies || []).forEach(d => {
-      if (nodes.find(n => n.id === d.resource_id)) {
-        links.push({source: r.resource_id, target: d.resource_id, relation: d.relation});
+  const formData = new FormData(e.target);
+  try {
+    const resp = await fetch(BASE + '/api/analyze', {method:'POST', body: formData});
+    const data = await resp.json();
+    currentResults = data;
+    if (data.error) {
+      status.style.background  = 'var(--red-bg)';
+      status.style.borderColor = 'var(--red)';
+      status.textContent = 'Erreur : ' + data.error;
+      appendLog('error','--','--', data.error, true);
+    } else {
+      status.style.background  = 'var(--green-bg)';
+      status.style.borderColor = 'var(--green)';
+      status.textContent = 'Analyse terminée !';
+      if (data.steps) {
+        Object.entries(data.steps).forEach(([id, step]) => {
+          updatePipelineStep(id, step.status || 'completed', step);
+          appendLog(step.status === 'failed' ? 'step_failed' : 'step_complete', id, '',
+            step.status + ' (' + (step.duration_ms||'?') + 'ms)', step.status === 'failed');
+        });
       }
-    });
-  });
+      const gen = data.steps && data.steps['2.6'];
+      const summary = document.getElementById('resultSummary');
+      summary.innerHTML =
+        '<div class="card stat"><div class="val">' + (gen?gen.recommendation:'?') + '</div><div class="lbl">Recommendation</div></div>' +
+        '<div class="card stat"><div class="val">' + (gen?gen.overall_score:'?') + '</div><div class="lbl">Score</div></div>' +
+        '<div class="card stat"><div class="val">' + (gen?gen.artifacts_count:'?') + '</div><div class="lbl">Artifacts</div></div>';
+      document.getElementById('resultJson').textContent = JSON.stringify(data, null, 2);
+      document.getElementById('resultsCard').style.display = 'block';
+    }
+  } catch(err) {
+    status.style.background = 'var(--red-bg)';
+    status.textContent = 'Erreur : ' + err.message;
+    appendLog('error','--','--', err.message, true);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Launch 2-Stage Analysis';
+});
 
-  const sim = d3.forceSimulation(nodes)
-    .force('link', d3.forceLink(links).id(d=>d.id).distance(80))
-    .force('charge', d3.forceManyBody().strength(-200))
-    .force('center', d3.forceCenter(width/2, height/2))
-    .force('collision', d3.forceCollide(30));
-
-  const link = svg.selectAll('.link').data(links).join('line')
-    .attr('class', d => 'link ' + d.relation)
-    .attr('stroke-width', 1.5);
-
-  const node = svg.selectAll('.node').data(nodes).join('g').attr('class','node')
-    .call(d3.drag().on('start',(e,d)=>{if(!e.active)sim.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;})
-      .on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y;}).on('end',(e,d)=>{if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null;}));
-
-  node.append('circle').attr('r',12).attr('fill',d=>d.color).attr('stroke',d=>d.stage==='stage_1'?'#fff':'var(--purple)').attr('stroke-width',2);
-  node.append('text').text(d=>d.name).attr('dx',16).attr('dy',4).attr('font-size','10px');
-  node.append('title').text(d=>d.type + ': ' + d.name);
-
-  sim.on('tick', () => {
-    link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
-    node.attr('transform',d=>'translate('+d.x+','+d.y+')');
-  });
-
-  // Legend
-  const legend = svg.append('g').attr('transform','translate(10,10)');
-  Object.entries(colorMap).forEach(([type,color],i) => {
-    legend.append('circle').attr('cx',6).attr('cy',i*16).attr('r',5).attr('fill',color);
-    legend.append('text').attr('x',16).attr('y',i*16+4).text(type).attr('font-size','9px');
-  });
-}
-
-// ── API Keys ──
+// ─────────────────────────────────────────────────────────
+// API KEYS
+// ─────────────────────────────────────────────────────────
 function renderKeys() {
   const container = document.getElementById('keysContainer');
-  const authMcps = CATALOG.filter(m => m.requires_auth && m.auth_key_name);
-  const seen = new Set();
+  const authMcps  = CATALOG.filter(m => m.requires_auth && m.auth_key_name);
+  const seen      = new Set();
   let html = '';
   authMcps.forEach(mcp => {
     if (seen.has(mcp.auth_key_name)) return;
     seen.add(mcp.auth_key_name);
     const has = !!API_KEYS[mcp.auth_key_name];
-    html += '<div class="key-row"><div class="field"><label>'+mcp.auth_key_name+' ('+mcp.name+')</label>';
-    html += '<input type="password" id="key-'+mcp.auth_key_name+'" value="'+(API_KEYS[mcp.auth_key_name]||'')+'" placeholder="Enter key..."></div>';
-    html += '<div><button class="btn-sm'+(has?' btn-green':'')+'" onclick="saveKey(\''+mcp.auth_key_name+'\')">Save</button>';
-    if (has) html += ' <button class="btn-sm btn-red" onclick="deleteKey(\''+mcp.auth_key_name+'\')">Del</button>';
+    html += '<div class="key-row"><div class="field"><label>' + mcp.auth_key_name + ' (' + mcp.name + ')</label>';
+    html += '<input type="password" id="key-' + mcp.auth_key_name + '" value="' + (API_KEYS[mcp.auth_key_name]||'') + '" placeholder="Enter key…"></div>';
+    html += '<div><button class="btn-sm' + (has?' btn-green':'') + '" onclick="saveKey(\'' + mcp.auth_key_name + '\')">Save</button>';
+    if (has) html += ' <button class="btn-sm btn-red" onclick="deleteKey(\'' + mcp.auth_key_name + '\')">Del</button>';
     html += '</div></div>';
   });
   Object.keys(API_KEYS).forEach(k => {
     if (!seen.has(k)) {
-      html += '<div class="key-row"><div class="field"><label>'+k+' (custom)</label>';
-      html += '<input type="password" id="key-'+k+'" value="'+API_KEYS[k]+'" placeholder="..."></div>';
-      html += '<div><button class="btn-sm btn-green" onclick="saveKey(\''+k+'\')">Save</button>';
-      html += ' <button class="btn-sm btn-red" onclick="deleteKey(\''+k+'\')">Del</button></div></div>';
+      html += '<div class="key-row"><div class="field"><label>' + k + ' (custom)</label>';
+      html += '<input type="password" id="key-' + k + '" value="' + API_KEYS[k] + '" placeholder="…"></div>';
+      html += '<div><button class="btn-sm btn-green" onclick="saveKey(\'' + k + '\')">Save</button>';
+      html += ' <button class="btn-sm btn-red" onclick="deleteKey(\'' + k + '\')">Del</button></div></div>';
     }
   });
-  container.innerHTML = html || '<p style="color:var(--text3)">No auth MCPs.</p>';
+  container.innerHTML = html || '<p style="color:var(--text3)">Aucun MCP avec auth.</p>';
 }
 
 async function saveKey(n) {
-  const v = document.getElementById('key-'+n).value.trim(); if(!v) return;
-  API_KEYS[n]=v;
-  await fetch(BASE+'/api/keys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(API_KEYS)});
-  renderKeys(); renderMCPs(); flash('keySaved');
+  const v = document.getElementById('key-' + n).value.trim();
+  if (!v) return;
+  API_KEYS[n] = v;
+  await fetch(BASE + '/api/keys', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(API_KEYS)});
+  renderKeys();
+  flash('keySaved');
 }
 async function deleteKey(n) {
   delete API_KEYS[n];
-  await fetch(BASE+'/api/keys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(API_KEYS)});
-  renderKeys(); renderMCPs();
+  await fetch(BASE + '/api/keys', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(API_KEYS)});
+  renderKeys();
 }
 function addCustomKey() {
-  const n=document.getElementById('ckName').value.trim().toUpperCase().replace(/[^A-Z0-9_]/g,'_');
-  const v=document.getElementById('ckVal').value.trim(); if(!n||!v) return;
-  API_KEYS[n]=v;
-  fetch(BASE+'/api/keys',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(API_KEYS)});
-  document.getElementById('ckName').value=''; document.getElementById('ckVal').value='';
-  renderKeys(); renderMCPs(); flash('keySaved');
-}
-function flash(id){const el=document.getElementById(id);el.style.display='block';setTimeout(()=>el.style.display='none',2000);}
-
-// ── Analyze ──
-document.getElementById('analyzeForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const btn = document.getElementById('submitBtn');
-  const status = document.getElementById('analyzeStatus');
-  btn.disabled=true; btn.textContent='Running 2-stage pipeline...';
-  status.style.display='block'; status.style.background='#0d1f3c'; status.style.border='1px solid var(--blue)';
-  status.textContent='Pipeline started...';
-  document.getElementById('resultsCard').style.display='none';
-
-  // Reset pipeline viz
-  initPipelineViz();
-  document.getElementById('liveLog').innerHTML = '';
-  appendLog('system','--','--','Pipeline started...');
-
-  // Switch to pipeline tab
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelector('[data-page="pipeline"]').classList.add('active');
-  document.getElementById('page-pipeline').classList.add('active');
-
-  const formData = new FormData(e.target);
-  try {
-    const resp = await fetch(BASE+'/api/analyze',{method:'POST',body:formData});
-    const data = await resp.json();
-    currentResults = data;
-
-    if (data.error) {
-      status.style.background='var(--red-bg)'; status.style.borderColor='var(--red)';
-      status.textContent='Error: '+data.error;
-      appendLog('error','--','--',data.error, true);
-    } else {
-      status.style.background='var(--green-bg)'; status.style.borderColor='var(--green)';
-      status.textContent='Analysis complete!';
-
-      // Update pipeline viz from results
-      if (data.steps) {
-        Object.entries(data.steps).forEach(([id,step]) => {
-          updatePipelineStep(id, step.status || 'completed', step);
-          appendLog(step.status==='failed'?'step_failed':'step_complete', id, '', step.status + ' (' + (step.duration_ms||'?') + 'ms)', step.status==='failed');
-        });
-      }
-
-      // Show results
-      const gen = data.steps && data.steps['2.6'];
-      const summary = document.getElementById('resultSummary');
-      summary.innerHTML = '<div class="card stat"><div class="val">'+(gen?gen.recommendation:'?')+'</div><div class="lbl">Recommendation</div></div>' +
-        '<div class="card stat"><div class="val">'+(gen?gen.overall_score:'?')+'</div><div class="lbl">Score</div></div>' +
-        '<div class="card stat"><div class="val">'+(gen?gen.artifacts_count:'?')+'</div><div class="lbl">Artifacts</div></div>';
-      document.getElementById('resultJson').textContent = JSON.stringify(data, null, 2);
-      document.getElementById('resultsCard').style.display='block';
-
-      // Update stats
-      document.getElementById('s-resources').textContent = (data.resources||[]).length;
-      renderResourceGraph();
-      if (data.grand_meta) renderReport(data.grand_meta);
-    }
-  } catch(err) {
-    status.style.background='var(--red-bg)'; status.textContent='Error: '+err.message;
-    appendLog('error','--','--',err.message, true);
-  }
-  btn.disabled=false; btn.textContent='Launch 2-Stage Analysis';
-});
-
-// ── Sessions ──
-async function loadSessions() {
-  try {
-    const resp = await fetch(BASE+'/api/sessions'); const data = await resp.json();
-    const c = document.getElementById('sessionsContainer');
-    document.getElementById('s-sessions').textContent = (data.sessions||[]).length;
-    if(!data.sessions||data.sessions.length===0){c.innerHTML='<p style="color:var(--text3)">No sessions yet.</p>';return;}
-    c.innerHTML = data.sessions.map(s =>
-      '<div class="session-row" onclick="loadSession(\''+s.session_id+'\')"><span style="font-family:monospace;font-size:12px;">'+s.session_id+'</span><span style="color:var(--text3);font-size:12px;">'+new Date(s.created_at).toLocaleString('fr-FR')+'</span></div>'
-    ).join('');
-  } catch(e) {}
-}
-async function loadSession(sid) {
-  const resp = await fetch(BASE+'/api/results/'+sid); const data = await resp.json();
-  document.getElementById('sessionJson').textContent = JSON.stringify(data,null,2);
-  document.getElementById('sessionDetail').style.display='block';
-  currentResults = data;
-  renderResourceGraph();
-  if (data.grand_meta) renderReport(data.grand_meta);
+  const n = document.getElementById('ckName').value.trim().toUpperCase().replace(/[^A-Z0-9_]/g,'_');
+  const v = document.getElementById('ckVal').value.trim();
+  if (!n || !v) return;
+  API_KEYS[n] = v;
+  fetch(BASE + '/api/keys', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(API_KEYS)});
+  document.getElementById('ckName').value = '';
+  document.getElementById('ckVal').value  = '';
+  renderKeys();
+  flash('keySaved');
 }
 
-// ═══ REPORT / GRAND META RENDERING ═══
-
-function renderReport(gm) {
-  if (!gm || Object.keys(gm).length === 0) return;
-  document.getElementById('reportEmpty').style.display = 'none';
-  document.getElementById('reportContent').style.display = 'block';
-
-  const syn = gm.match_synthesis || {};
-  const scores = syn.category_scores || {};
-
-  // Verdict
-  const sc = syn.overall_score || 0;
-  document.getElementById('rptScore').textContent = (sc * 100).toFixed(0) + '%';
-  document.getElementById('rptScore').style.color = sc >= 0.7 ? 'var(--green)' : sc >= 0.4 ? 'var(--orange)' : 'var(--red)';
-  document.getElementById('rptRecommendation').textContent = (syn.recommendation || '-').replace(/_/g, ' ').toUpperCase();
-  document.getElementById('rptStrengths').textContent = (syn.top_strengths || []).length;
-  document.getElementById('rptRisks').textContent = (syn.top_risks || []).length;
-  document.getElementById('rptUnknowns').textContent = (syn.top_unknowns || []).length;
-
-  // Radar chart
-  renderRadar(scores);
-
-  // Decision factors
-  const dg = document.getElementById('decisionGrid');
-  dg.innerHTML = (syn.decision_factors || []).map(f =>
-    '<div class="decision-item '+(f.verdict||'caution')+'"><div class="factor">'+f.factor+'</div><div class="rationale">'+
-    '<span class="badge badge-'+(f.verdict==='go'?'green':f.verdict==='no_go'?'red':'orange')+'">'+f.verdict+'</span> '+
-    (f.rationale||'')+'</div></div>'
-  ).join('') || '<p style="color:var(--text3)">Aucun facteur.</p>';
-
-  // Categories
-  renderGMCategory('gmEntity', gm.entity || {}, ['company', 'culture', 'financial_health', 'reputation', 'technology_stack']);
-  renderGMCategory('gmOrganigramme', gm.organigramme || {}, ['department', 'team', 'team_size', 'reporting_to', 'requestor', 'position_in_hierarchy']);
-  renderGMExpectations('gmExpectations', gm.real_expectations || {});
-  renderGMCategory('gmJobPosition', gm.job_position || {}, ['title', 'seniority', 'contract', 'location', 'compensation']);
-  renderGMCandidate('gmCandidate', gm.candidate_profile || {});
-  renderGMCategory('gmHistorical', gm.historical || {}, ['job_posting', 'recruitment_history', 'market_context', 'company_hiring_pattern']);
-
-  // Interview questions
-  const ql = document.getElementById('questionList');
-  ql.innerHTML = (syn.interview_questions || []).map(q =>
-    '<li><strong>'+q.question+'</strong><div class="purpose">Objectif: '+
-    (q.purpose||'')+' | Cible: '+(q.targets_category||'')+'</div></li>'
-  ).join('') || '<li style="color:var(--text3)">Aucune question.</li>';
-
-  // Full JSON
-  document.getElementById('grandMetaJson').textContent = JSON.stringify(gm, null, 2);
-}
-
-function renderRadar(scores) {
-  const container = document.getElementById('radarChart');
-  container.innerHTML = '';
-  const entries = Object.entries(scores);
-  if (entries.length === 0) { container.innerHTML = '<p style="color:var(--text3);text-align:center;padding:40px;">Pas de scores.</p>'; return; }
-
-  const w = 300, h = 300, cx = w/2, cy = h/2, r = 120;
-  const svg = d3.select(container).append('svg').attr('viewBox', [0,0,w,h]);
-  const n = entries.length;
-  const angle = (i) => (Math.PI*2*i/n) - Math.PI/2;
-
-  // Grid
-  [0.25,0.5,0.75,1].forEach(level => {
-    const pts = entries.map((_,i) => {
-      const a = angle(i);
-      return [cx + Math.cos(a)*r*level, cy + Math.sin(a)*r*level];
-    });
-    svg.append('polygon').attr('points', pts.map(p=>p.join(',')).join(' '))
-      .attr('fill','none').attr('stroke','#30363d').attr('stroke-width', level===1?1.5:0.5);
-  });
-
-  // Axes + labels
-  entries.forEach(([name,val],i) => {
-    const a = angle(i);
-    const x2 = cx+Math.cos(a)*r, y2 = cy+Math.sin(a)*r;
-    svg.append('line').attr('x1',cx).attr('y1',cy).attr('x2',x2).attr('y2',y2).attr('stroke','#30363d').attr('stroke-width',0.5);
-    const lx = cx+Math.cos(a)*(r+18), ly = cy+Math.sin(a)*(r+18);
-    svg.append('text').attr('x',lx).attr('y',ly).attr('text-anchor','middle').attr('dominant-baseline','middle')
-      .attr('font-size','8px').attr('fill','#8b949e').text(name.replace(/_/g,' '));
-  });
-
-  // Data polygon
-  const dataPts = entries.map(([_,val],i) => {
-    const a = angle(i);
-    return [cx+Math.cos(a)*r*(val||0), cy+Math.sin(a)*r*(val||0)];
-  });
-  svg.append('polygon').attr('points', dataPts.map(p=>p.join(',')).join(' '))
-    .attr('fill','rgba(88,166,255,0.2)').attr('stroke','#58a6ff').attr('stroke-width',2);
-
-  // Data dots
-  dataPts.forEach(([x,y],i) => {
-    svg.append('circle').attr('cx',x).attr('cy',y).attr('r',4).attr('fill','#58a6ff');
-    svg.append('text').attr('x',x).attr('y',y-8).attr('text-anchor','middle').attr('font-size','9px').attr('fill','#58a6ff').attr('font-weight','bold')
-      .text(Math.round((entries[i][1]||0)*100)+'%');
-  });
-}
-
-function renderGMCategory(containerId, data, fields) {
-  const c = document.getElementById(containerId);
-  let html = '';
-  const conf = data.confidence;
-  if (conf !== undefined) html += '<div style="font-size:10px;color:var(--text3);margin-bottom:6px;">Confidence: '+(conf*100).toFixed(0)+'%</div>';
-
-  fields.forEach(f => {
-    const val = data[f];
-    if (val === undefined || val === null) return;
-    if (typeof val === 'object' && !Array.isArray(val)) {
-      html += '<div class="gm-category"><h3>'+f.replace(/_/g,' ')+'</h3>';
-      Object.entries(val).forEach(([k,v]) => {
-        if (v === null || v === undefined) return;
-        const display = Array.isArray(v) ? v.join(', ') : String(v);
-        if (display) html += '<div class="gm-field"><span class="label">'+k.replace(/_/g,' ')+'</span><span class="value">'+display+'</span></div>';
-      });
-      html += '</div>';
-    } else {
-      const display = Array.isArray(val) ? val.join(', ') : String(val);
-      html += '<div class="gm-field"><span class="label">'+f.replace(/_/g,' ')+'</span><span class="value">'+display+'</span></div>';
-    }
-  });
-  c.innerHTML = html || '<p style="color:var(--text3)">Pas de donnees.</p>';
-}
-
-function renderGMExpectations(containerId, data) {
-  const c = document.getElementById(containerId);
-  let html = '';
-  if (data.hiring_motivation) html += '<div class="gm-field"><span class="label">Motivation</span><span class="value">'+data.hiring_motivation.replace(/_/g,' ')+'</span></div>';
-  if (data.urgency) html += '<div class="gm-field"><span class="label">Urgence</span><span class="value">'+data.urgency.replace(/_/g,' ')+'</span></div>';
-
-  if (data.hidden_requirements && data.hidden_requirements.length) {
-    html += '<div class="gm-category"><h3>Exigences cachees</h3>';
-    data.hidden_requirements.forEach(r => {
-      html += '<div class="gm-field"><span class="label">'+r.requirement+'</span><span class="value"><span class="badge badge-'+(r.importance==='critical'?'red':r.importance==='important'?'orange':'green')+'">'+r.importance+'</span></span></div>';
-    });
-    html += '</div>';
-  }
-
-  if (data.real_challenges && data.real_challenges.length) {
-    html += '<div class="gm-category"><h3>Vrais defis</h3><div class="gm-tags">';
-    data.real_challenges.forEach(ch => {
-      html += '<span class="gm-tag '+(ch.severity==='high'?'red':ch.severity==='medium'?'orange':'green')+'">'+ch.challenge+'</span>';
-    });
-    html += '</div></div>';
-  }
-
-  if (data.red_flags && data.red_flags.length) {
-    html += '<div class="gm-category"><h3>Red Flags</h3><div class="gm-tags">';
-    data.red_flags.forEach(f => { html += '<span class="gm-tag red">'+f.flag+'</span>'; });
-    html += '</div></div>';
-  }
-
-  if (data.growth_potential) {
-    html += '<div class="gm-category"><h3>Potentiel evolution</h3>';
-    Object.entries(data.growth_potential).forEach(([k,v]) => {
-      if (v) html += '<div class="gm-field"><span class="label">'+k.replace(/_/g,' ')+'</span><span class="value">'+(Array.isArray(v)?v.join(', '):v)+'</span></div>';
-    });
-    html += '</div>';
-  }
-  c.innerHTML = html || '<p style="color:var(--text3)">Pas de donnees.</p>';
-}
-
-function renderGMCandidate(containerId, data) {
-  const c = document.getElementById(containerId);
-  let html = '';
-
-  if (data.identity) {
-    html += '<div class="gm-category"><h3>Identite</h3>';
-    Object.entries(data.identity).forEach(([k,v]) => {
-      if (v) html += '<div class="gm-field"><span class="label">'+k.replace(/_/g,' ')+'</span><span class="value">'+v+'</span></div>';
-    });
-    html += '</div>';
-  }
-
-  if (data.professional_summary) {
-    html += '<div style="font-size:11px;color:var(--text2);padding:8px;background:var(--bg);border-radius:6px;margin-bottom:8px;">'+data.professional_summary+'</div>';
-  }
-
-  if (data.career_trajectory) {
-    const ct = data.career_trajectory;
-    html += '<div class="gm-category"><h3>Trajectoire</h3>';
-    if (ct.direction) html += '<div class="gm-field"><span class="label">Direction</span><span class="value">'+ct.direction+'</span></div>';
-    if (ct.velocity) html += '<div class="gm-field"><span class="label">Velocity</span><span class="value">'+ct.velocity+'</span></div>';
-    if (ct.total_experience_years) html += '<div class="gm-field"><span class="label">Exp. totale</span><span class="value">'+ct.total_experience_years+' ans</span></div>';
-    if (ct.relevant_experience_years) html += '<div class="gm-field"><span class="label">Exp. pertinente</span><span class="value">'+ct.relevant_experience_years+' ans</span></div>';
-    if (ct.companies_count) html += '<div class="gm-field"><span class="label">Entreprises</span><span class="value">'+ct.companies_count+'</span></div>';
-    html += '</div>';
-  }
-
-  if (data.skills_inventory && data.skills_inventory.length) {
-    html += '<div class="gm-category"><h3>Top Skills</h3><div class="gm-tags">';
-    data.skills_inventory.slice(0,15).forEach(s => {
-      const cls = s.evidence_strength==='strong'?'green':s.evidence_strength==='moderate'?'':'orange';
-      html += '<span class="gm-tag '+cls+'">'+s.skill+(s.level?' ('+s.level+')':'')+'</span>';
-    });
-    html += '</div></div>';
-  }
-  c.innerHTML = html || '<p style="color:var(--text3)">Pas de donnees.</p>';
-}
-
-// ── Init ──
-document.getElementById('s-schemas').textContent = '{{ schema_count }}';
+// ─────────────────────────────────────────────────────────
+// Init on load
+// ─────────────────────────────────────────────────────────
 initPipelineViz();
-renderMCPs();
 renderKeys();
-loadSessions();
+loadDbData();
 </script>
 </body>
 </html>
