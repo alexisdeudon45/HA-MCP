@@ -1107,26 +1107,56 @@ function renderKeys() {
   const container = document.getElementById('keysContainer');
   // Clés standard — toujours affichées même si le catalogue est vide
   const DEFAULT_KEYS = [
-    { name:'ANTHROPIC_API_KEY',  label:'Anthropic Claude',    required:true  },
-    { name:'OPENAI_API_KEY',     label:'OpenAI GPT',          required:false },
-    { name:'MISTRAL_API_KEY',    label:'Mistral AI',          required:false },
-    { name:'HF_API_KEY',         label:'Hugging Face',        required:false },
-    { name:'NOTION_API_KEY',     label:'Notion',              required:false },
-    { name:'GOOGLE_DRIVE_TOKEN', label:'Google Drive',        required:false },
-    { name:'STRIPE_API_KEY',     label:'Stripe',              required:false },
+    // ── Requis ──────────────────────────────────────────────────────
+    { name:'ANTHROPIC_API_KEY',  label:'Anthropic Claude',    required:true,  section:'required',
+      desc:'Requis — structure, analyse et génère tous les rapports. Sans cette clé le pipeline ne fonctionne pas.' },
+    // ── Optionnels ──────────────────────────────────────────────────
+    { name:'OPENAI_API_KEY',     label:'OpenAI GPT',          required:false, section:'optional',
+      desc:'Optionnel — LLM alternatif à Claude (fallback si Claude indispo).' },
+    { name:'MISTRAL_API_KEY',    label:'Mistral AI',          required:false, section:'optional',
+      desc:'Optionnel — LLM européen souverain (RGPD). Alternatif à Claude.' },
+    { name:'HF_API_KEY',         label:'Hugging Face',        required:false, section:'optional',
+      desc:'Optionnel — active le NER (reconnaissance d\'entités) et la classification ML.' },
+    { name:'NOTION_API_KEY',     label:'Notion',              required:false, section:'optional',
+      desc:'Optionnel — stocke les rapports d\'analyse dans votre workspace Notion.' },
+    { name:'GOOGLE_DRIVE_TOKEN', label:'Google Drive',        required:false, section:'optional',
+      desc:'Optionnel — lit les PDFs directement depuis Google Drive (sans upload manuel).' },
+    { name:'STRIPE_API_KEY',     label:'Stripe',              required:false, section:'optional',
+      desc:'Optionnel — accès aux données Stripe via MCP (paiements, abonnements).' },
   ];
   const seen = new Set();
-  let html = '<h3 style="font-size:12px;color:var(--text3);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">Clés API — entrez la valeur puis cliquez Save</h3>';
+  let html = '';
+  let lastSection = '';
 
   DEFAULT_KEYS.forEach(k => {
     seen.add(k.name);
     const has = !!API_KEYS[k.name];
-    const req = k.required ? ' <span style="color:var(--red);font-size:10px">requis</span>' : '';
-    html += '<div class="key-row"><div class="field">';
-    html += '<label>' + k.name + req + ' <span style="color:var(--text3);font-weight:400">— ' + k.label + '</span></label>';
-    html += '<input type="password" id="key-' + k.name + '" value="' + (API_KEYS[k.name]||'') + '" placeholder="Colle ta clé ici…">';
-    html += '</div><div><button class="btn-sm' + (has?' btn-green':'') + '" onclick="saveKey(\'' + k.name + '\')">' + (has?'✓ Saved':'Save') + '</button>';
-    if (has) html += ' <button class="btn-sm btn-red" onclick="deleteKey(\'' + k.name + '\')">Del</button>';
+
+    // En-tête de section
+    if (k.section !== lastSection) {
+      lastSection = k.section;
+      if (k.section === 'required') {
+        html += '<div style="margin:0 0 8px;padding:8px 12px;background:var(--red-bg);border:1px solid var(--red);border-radius:6px;font-size:11px;color:var(--red)">⚠ ANTHROPIC_API_KEY est obligatoire — sans elle le pipeline ne fonctionne pas.</div>';
+        html += '<h3 style="font-size:11px;color:var(--red);margin:12px 0 8px;text-transform:uppercase;letter-spacing:1px">● Requis</h3>';
+      } else {
+        html += '<h3 style="font-size:11px;color:var(--text3);margin:20px 0 8px;text-transform:uppercase;letter-spacing:1px">○ Optionnels — activent des fonctionnalités supplémentaires</h3>';
+      }
+    }
+
+    const borderColor = k.required ? 'var(--red)' : (has ? 'var(--green)' : 'var(--border)');
+    html += '<div class="key-row" style="border:1px solid ' + borderColor + ';border-radius:6px;padding:10px 12px;margin-bottom:6px;background:var(--bg)">';
+    html += '<div class="field" style="flex:1">';
+    html += '<label style="display:flex;align-items:center;gap:8px;margin-bottom:4px">';
+    html += '<code style="background:var(--bg3);padding:2px 6px;border-radius:3px;font-size:11px;color:' + (k.required?'var(--red)':'var(--blue)') + '">' + k.name + '</code>';
+    html += '<span style="color:var(--text3);font-size:11px">' + k.label + '</span>';
+    if (has) html += '<span style="color:var(--green);font-size:10px">✓ configurée</span>';
+    html += '</label>';
+    html += '<div style="font-size:10px;color:var(--text3);margin-bottom:6px">' + k.desc + '</div>';
+    html += '<input type="password" id="key-' + k.name + '" value="' + (API_KEYS[k.name]||'') + '" placeholder="Colle la valeur ici…" style="margin-bottom:0">';
+    html += '</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:4px;margin-left:8px">';
+    html += '<button class="btn-sm' + (has?' btn-green':'') + '" onclick="saveKey(\'' + k.name + '\')">' + (has?'✓ Saved':'Save') + '</button>';
+    if (has) html += '<button class="btn-sm btn-red" onclick="deleteKey(\'' + k.name + '\')">Del</button>';
     html += '</div></div>';
   });
 
