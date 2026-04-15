@@ -1105,16 +1105,39 @@ document.getElementById('analyzeForm').addEventListener('submit', async (e) => {
 // ─────────────────────────────────────────────────────────
 function renderKeys() {
   const container = document.getElementById('keysContainer');
-  const authMcps  = CATALOG.filter(m => m.requires_auth && m.auth_key_name);
-  const seen      = new Set();
-  let html = '';
-  authMcps.forEach(mcp => {
-    if (seen.has(mcp.auth_key_name)) return;
+  // Clés standard — toujours affichées même si le catalogue est vide
+  const DEFAULT_KEYS = [
+    { name:'ANTHROPIC_API_KEY',  label:'Anthropic Claude',    required:true  },
+    { name:'OPENAI_API_KEY',     label:'OpenAI GPT',          required:false },
+    { name:'MISTRAL_API_KEY',    label:'Mistral AI',          required:false },
+    { name:'HF_API_KEY',         label:'Hugging Face',        required:false },
+    { name:'NOTION_API_KEY',     label:'Notion',              required:false },
+    { name:'GOOGLE_DRIVE_TOKEN', label:'Google Drive',        required:false },
+    { name:'STRIPE_API_KEY',     label:'Stripe',              required:false },
+  ];
+  const seen = new Set();
+  let html = '<h3 style="font-size:12px;color:var(--text3);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">Clés API — entrez la valeur puis cliquez Save</h3>';
+
+  DEFAULT_KEYS.forEach(k => {
+    seen.add(k.name);
+    const has = !!API_KEYS[k.name];
+    const req = k.required ? ' <span style="color:var(--red);font-size:10px">requis</span>' : '';
+    html += '<div class="key-row"><div class="field">';
+    html += '<label>' + k.name + req + ' <span style="color:var(--text3);font-weight:400">— ' + k.label + '</span></label>';
+    html += '<input type="password" id="key-' + k.name + '" value="' + (API_KEYS[k.name]||'') + '" placeholder="Colle ta clé ici…">';
+    html += '</div><div><button class="btn-sm' + (has?' btn-green':'') + '" onclick="saveKey(\'' + k.name + '\')">' + (has?'✓ Saved':'Save') + '</button>';
+    if (has) html += ' <button class="btn-sm btn-red" onclick="deleteKey(\'' + k.name + '\')">Del</button>';
+    html += '</div></div>';
+  });
+
+  // Clés supplémentaires depuis le catalogue ou déjà sauvegardées
+  const extraFromCatalog = CATALOG.filter(m => m.requires_auth && m.auth_key_name && !seen.has(m.auth_key_name));
+  extraFromCatalog.forEach(mcp => {
     seen.add(mcp.auth_key_name);
     const has = !!API_KEYS[mcp.auth_key_name];
-    html += '<div class="key-row"><div class="field"><label>' + mcp.auth_key_name + ' (' + mcp.name + ')</label>';
-    html += '<input type="password" id="key-' + mcp.auth_key_name + '" value="' + (API_KEYS[mcp.auth_key_name]||'') + '" placeholder="Enter key…"></div>';
-    html += '<div><button class="btn-sm' + (has?' btn-green':'') + '" onclick="saveKey(\'' + mcp.auth_key_name + '\')">Save</button>';
+    html += '<div class="key-row"><div class="field"><label>' + mcp.auth_key_name + ' — ' + mcp.name + '</label>';
+    html += '<input type="password" id="key-' + mcp.auth_key_name + '" value="' + (API_KEYS[mcp.auth_key_name]||'') + '" placeholder="Colle ta clé ici…"></div>';
+    html += '<div><button class="btn-sm' + (has?' btn-green':'') + '" onclick="saveKey(\'' + mcp.auth_key_name + '\')">' + (has?'✓ Saved':'Save') + '</button>';
     if (has) html += ' <button class="btn-sm btn-red" onclick="deleteKey(\'' + mcp.auth_key_name + '\')">Del</button>';
     html += '</div></div>';
   });
@@ -1122,11 +1145,11 @@ function renderKeys() {
     if (!seen.has(k)) {
       html += '<div class="key-row"><div class="field"><label>' + k + ' (custom)</label>';
       html += '<input type="password" id="key-' + k + '" value="' + API_KEYS[k] + '" placeholder="…"></div>';
-      html += '<div><button class="btn-sm btn-green" onclick="saveKey(\'' + k + '\')">Save</button>';
+      html += '<div><button class="btn-sm btn-green" onclick="saveKey(\'' + k + '\')">✓ Saved</button>';
       html += ' <button class="btn-sm btn-red" onclick="deleteKey(\'' + k + '\')">Del</button></div></div>';
     }
   });
-  container.innerHTML = html || '<p style="color:var(--text3)">Aucun MCP avec auth.</p>';
+  container.innerHTML = html;
 }
 
 async function saveKey(n) {
