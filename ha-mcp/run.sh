@@ -9,8 +9,13 @@ LOCKFILE="/tmp/ha-mcp.lock"
 if [ -f "${LOCKFILE}" ]; then
     OLD_PID=$(cat "${LOCKFILE}" 2>/dev/null)
     if [ -n "${OLD_PID}" ] && kill -0 "${OLD_PID}" 2>/dev/null; then
-        bashio::log.warning "HA-MCP already running (PID ${OLD_PID}), exiting."
-        exit 0
+        # Flask tourne déjà — on attend qu'il s'arrête (évite le restart loop s6)
+        bashio::log.info "HA-MCP already running (PID ${OLD_PID}), waiting..."
+        while kill -0 "${OLD_PID}" 2>/dev/null; do
+            sleep 5
+        done
+        bashio::log.info "PID ${OLD_PID} stopped, restarting..."
+        rm -f "${LOCKFILE}"
     else
         bashio::log.info "Removing stale lockfile (PID ${OLD_PID} not found)."
         rm -f "${LOCKFILE}"
