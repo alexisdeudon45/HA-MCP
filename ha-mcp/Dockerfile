@@ -23,7 +23,6 @@ RUN npm install -g \
     @modelcontextprotocol/server-sequential-thinking \
     @modelcontextprotocol/server-filesystem \
     @modelcontextprotocol/server-memory \
-    @modelcontextprotocol/server-fetch \
     @modelcontextprotocol/server-puppeteer \
     @modelcontextprotocol/server-everything \
     @playwright/mcp \
