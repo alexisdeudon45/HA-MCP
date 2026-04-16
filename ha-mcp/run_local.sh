@@ -15,6 +15,7 @@ fi
 
 # Variables d'environnement (simule bashio::config)
 export HA_MCP_PORT=8765
+export HA_MCP_SCHEMAS_DIR="$(pwd)/schemas"
 export HA_MCP_LOG_LEVEL=debug
 export HA_MCP_STORAGE_PATH=/tmp/ha-mcp-test
 export HA_MCP_DB_PATH="$(pwd)/database/tool_v2.db"

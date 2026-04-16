@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 LOG_LEVEL    = os.environ.get("HA_MCP_LOG_LEVEL", "info").upper()
 STORAGE_PATH = Path(os.environ.get("HA_MCP_STORAGE_PATH", "/share/ha-mcp"))
 INGRESS_ENTRY= os.environ.get("HA_MCP_INGRESS_ENTRY", "")
-SCHEMAS_DIR  = Path("/schemas")
+SCHEMAS_DIR  = Path(os.environ.get("HA_MCP_SCHEMAS_DIR", "/schemas"))
 KEYS_FILE    = STORAGE_PATH / "api_keys.json"
 # DB : en prod HA → /share/ha-mcp/tool_v2.db  (via HA_MCP_DB_PATH)
 #      en dev local → database/tool_v2.db
@@ -164,10 +164,11 @@ async def index(request: Request):
     registry = SchemaRegistry(SCHEMAS_DIR)
     registry.load()
     api_keys = _load_api_keys()
+    # Starlette >= 0.21 : request en kwarg, context séparé
     return templates.TemplateResponse(
-        "dashboard.html",
-        {
-            "request":      request,
+        request=request,
+        name="dashboard.html",
+        context={
             "ingress":      INGRESS_ENTRY,
             "storage":      str(STORAGE_PATH),
             "schema_count": len(registry.list_schemas()),
