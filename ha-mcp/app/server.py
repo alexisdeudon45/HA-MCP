@@ -5,9 +5,13 @@ import json
 import logging
 import os
 import sqlite3
+import threading
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+
+# ── Registre des sessions en cours ────────────────────────────────────────────
+_sessions: dict[str, dict] = {}   # session_id → {status, result, error}
 
 from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
@@ -270,12 +274,72 @@ def api_delete_key(key_name: str):
     _save_api_keys(keys)
     return jsonify({"status": "deleted"})
 
+def _run_pipeline_thread(session_id: str, offer_path: str, cv_path: str, api_keys: dict):
+    """Lance le pipeline en thread background — libère Flask pour servir le SSE."""
+    _sessions[session_id] = {"status": "running", "started_at": datetime.now(timezone.utc).isoformat()}
+    try:
+        orchestrator = MCPOrchestrator(project_root=Path("/"))
+        orchestrator.initialize(session_id)
+        mcp_tools = _build_active_mcp_tools(api_keys)
+        orchestrator.discover_mcps(mcp_tools)
+        engine = PipelineEngine(orchestrator, STORAGE_PATH, api_keys=api_keys)
+        results = engine.run(offer_path, cv_path)
+
+        # Logger les appels MCP dans call_history
+        _log_pipeline_calls(session_id, results.get("events", []))
+
+        gen = _sessions[session_id] = {
+            "status": "completed" if results.get("steps", {}).get("2.6", {}).get("status") == "completed" else "failed",
+            "session_id":     session_id,
+            "steps":          results.get("steps", {}),
+            "events":         results.get("events", []),
+            "grand_meta":     results.get("grand_meta", {}),
+            "recommendation": results.get("steps", {}).get("2.6", {}).get("recommendation", "N/A"),
+            "overall_score":  results.get("steps", {}).get("2.6", {}).get("overall_score", 0),
+            "artifacts_count":results.get("steps", {}).get("2.6", {}).get("artifacts_count", 0),
+        }
+    except Exception as e:
+        logger.exception("Pipeline failed in thread")
+        _sessions[session_id] = {"status": "failed", "error": str(e), "session_id": session_id}
+
+
+def _log_pipeline_calls(session_id: str, events: list) -> None:
+    """Enregistre les événements pipeline dans call_history."""
+    if not DB_PATH.exists():
+        return
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        for ev in events:
+            if ev.get("type") in ("step_complete", "step_failed"):
+                conn.execute("""
+                    INSERT OR IGNORE INTO call_history
+                      (mcp_id, tool_name, request_json, response_json,
+                       response_type, started_at, duration_ms, session_id, caller)
+                    VALUES (?,?,?,?,?,?,?,?,?)
+                """, (
+                    "pipeline",
+                    ev.get("step_name", ""),
+                    json.dumps({"step_id": ev.get("step_id"), "stage": ev.get("stage")}),
+                    json.dumps({"status": ev.get("type"), "error": ev.get("error", "")}),
+                    "success" if ev.get("type") == "step_complete" else "error",
+                    ev.get("timestamp", datetime.now(timezone.utc).isoformat()),
+                    ev.get("duration_ms", 0),
+                    session_id,
+                    "pipeline",
+                ))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        logger.warning("call_history log failed: %s", e)
+
+
 @app.route("/api/analyze", methods=["POST"])
 def analyze():
+    """Lance le pipeline en background — retourne session_id immédiatement."""
     if "offer_pdf" not in request.files or "cv_pdf" not in request.files:
         return jsonify({"error": "Both PDF files required"}), 400
     offer_file = request.files["offer_pdf"]
-    cv_file = request.files["cv_pdf"]
+    cv_file    = request.files["cv_pdf"]
     if not offer_file.filename or not cv_file.filename:
         return jsonify({"error": "Empty filenames"}), 400
 
@@ -283,38 +347,36 @@ def analyze():
     upload_dir = STORAGE_PATH / "inputs" / session_id
     upload_dir.mkdir(parents=True, exist_ok=True)
     offer_path = upload_dir / f"offer_{offer_file.filename}"
-    cv_path = upload_dir / f"cv_{cv_file.filename}"
+    cv_path    = upload_dir / f"cv_{cv_file.filename}"
     offer_file.save(str(offer_path))
     cv_file.save(str(cv_path))
 
-    try:
-        orchestrator = MCPOrchestrator(project_root=Path("/"))
-        orchestrator.initialize(session_id)
+    api_keys = _load_api_keys()
 
-        api_keys = _load_api_keys()
-        mcp_tools = _build_active_mcp_tools(api_keys)
-        orchestrator.discover_mcps(mcp_tools)
+    # Lancer en background — Flask reste libre pour servir SSE
+    t = threading.Thread(
+        target=_run_pipeline_thread,
+        args=(session_id, str(offer_path), str(cv_path), api_keys),
+        daemon=True,
+    )
+    t.start()
 
-        engine = PipelineEngine(orchestrator, STORAGE_PATH, api_keys=api_keys)
-        results = engine.run(str(offer_path), str(cv_path))
+    # Retour immédiat avec le session_id
+    return jsonify({"session_id": session_id, "status": "running"})
 
-        gen = results.get("steps", {}).get("2.6", {})
-        return jsonify({
-            "session_id": session_id,
-            "status": "completed" if gen.get("status") == "completed" else "failed",
-            "steps": results.get("steps", {}),
-            "stages": results.get("stages", {}),
-            "events": results.get("events", []),
-            "resources": results.get("resources", []),
-            "mcp_config": results.get("mcp_config", {}),
-            "grand_meta": results.get("grand_meta", {}),
-            "recommendation": gen.get("recommendation", "N/A"),
-            "overall_score": gen.get("overall_score", 0),
-            "artifacts_count": gen.get("artifacts_count", 0),
-        })
-    except Exception as e:
-        logger.exception("Pipeline failed")
-        return jsonify({"error": str(e), "session_id": session_id}), 500
+
+@app.route("/api/analyze/status/<session_id>")
+def analyze_status(session_id: str):
+    """Statut d'une analyse en cours ou terminée."""
+    result = _sessions.get(session_id)
+    if not result:
+        # Chercher dans les fichiers persistants
+        result_path = STORAGE_PATH / "outputs" / f"result_{session_id}.json"
+        if result_path.exists():
+            with open(result_path) as f:
+                return jsonify({"status": "completed", **json.load(f)})
+        return jsonify({"status": "not_found"}), 404
+    return jsonify(result)
 
 @app.route("/api/events/<session_id>")
 def api_events(session_id: str):
