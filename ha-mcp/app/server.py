@@ -12,6 +12,21 @@ from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
+# ── Sentry (optionnel — activé si SENTRY_DSN présent) ────────────────────────
+import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+
+_sentry_dsn = os.environ.get("SENTRY_DSN", "")
+if _sentry_dsn:
+    sentry_sdk.init(
+        dsn=_sentry_dsn,
+        integrations=[FlaskIntegration()],
+        traces_sample_rate=0.1,
+        environment=os.environ.get("HA_MCP_ENV", "production"),
+    )
+    import logging
+    logging.getLogger(__name__).info("Sentry initialized")
+
 from flask import Flask, Response, jsonify, request, render_template
 
 from .mcp_orchestrator import MCPOrchestrator

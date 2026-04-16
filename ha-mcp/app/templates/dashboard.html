@@ -1483,6 +1483,8 @@ function renderKeys() {
       desc:'Optionnel — lit les PDFs directement depuis Google Drive (sans upload manuel).' },
     { name:'STRIPE_API_KEY',     label:'Stripe',              required:false, section:'optional',
       desc:'Optionnel — accès aux données Stripe via MCP (paiements, abonnements).' },
+    { name:'SENTRY_DSN',         label:'Sentry Error Monitoring', required:false, section:'optional',
+      desc:'Optionnel — capture les erreurs Python en temps réel. DSN depuis Sentry → Project Settings → Client Keys.' },
   ];
   const seen = new Set();
   let html = '';
