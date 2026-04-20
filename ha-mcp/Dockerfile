@@ -41,4 +41,3 @@ RUN chmod a+x /run.sh \
 
 WORKDIR /
 
-CMD ["/run.sh"]
